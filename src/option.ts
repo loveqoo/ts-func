@@ -8,7 +8,166 @@ interface Option<A> extends Monad<A>, MonadOp<A> {
 
   map<B>(transform: (a: A) => B): Option<B>;
 
+  map<B, C>(transform1: (a: A) => B, transform2: (a: B) => C): Option<C>;
+
+  map<B, C, D>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D
+  ): Option<D>;
+
+  map<B, C, D, E>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E
+  ): Option<E>;
+
+  map<B, C, D, E, F>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F
+  ): Option<F>;
+
+  map<B, C, D, E, F, G>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F,
+    transform6: (f: F) => G
+  ): Option<G>;
+
+  map<B, C, D, E, F, G, H>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F,
+    transform6: (f: F) => G,
+    transform7: (g: G) => H
+  ): Option<H>;
+
+  map<B, C, D, E, F, G, H, I>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F,
+    transform6: (f: F) => G,
+    transform7: (g: G) => H,
+    transform8: (h: H) => I
+  ): Option<I>;
+
+  map<B, C, D, E, F, G, H, I, J>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F,
+    transform6: (f: F) => G,
+    transform7: (g: G) => H,
+    transform8: (h: H) => I,
+    transform9: (i: I) => J
+  ): Option<J>;
+
+  map<B, C, D, E, F, G, H, I, J, K>(
+    transform1: (a: A) => B,
+    transform2: (b: B) => C,
+    transform3: (c: C) => D,
+    transform4: (d: D) => E,
+    transform5: (e: E) => F,
+    transform6: (f: F) => G,
+    transform7: (g: G) => H,
+    transform8: (h: H) => I,
+    transform9: (i: I) => J,
+    transform10: (j: J) => K
+  ): Option<K>;
+
   flatMap<B>(transform: (a: A) => Option<B>): Option<B>;
+
+  flatMap<B, C>(
+    transform1: (a: A) => Option<B>,
+    transform2: (a: B) => Option<C>
+  ): Option<C>;
+
+  flatMap<B, C, D>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>
+  ): Option<D>;
+
+  flatMap<B, C, D, E>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>
+  ): Option<E>;
+
+  flatMap<B, C, D, E, F>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>
+  ): Option<F>;
+
+  flatMap<B, C, D, E, F, G>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>,
+    transform6: (f: F) => Option<G>
+  ): Option<G>;
+
+  flatMap<B, C, D, E, F, G, H>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>,
+    transform6: (f: F) => Option<G>,
+    transform7: (g: G) => Option<H>
+  ): Option<H>;
+
+  flatMap<B, C, D, E, F, G, H, I>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>,
+    transform6: (f: F) => Option<G>,
+    transform7: (g: G) => Option<H>,
+    transform8: (h: H) => Option<I>
+  ): Option<I>;
+
+  flatMap<B, C, D, E, F, G, H, I, J>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>,
+    transform6: (f: F) => Option<G>,
+    transform7: (g: G) => Option<H>,
+    transform8: (h: H) => Option<I>,
+    transform9: (i: I) => Option<J>
+  ): Option<J>;
+
+  flatMap<B, C, D, E, F, G, H, I, J, K>(
+    transform1: (a: A) => Option<B>,
+    transform2: (b: B) => Option<C>,
+    transform3: (c: C) => Option<D>,
+    transform4: (d: D) => Option<E>,
+    transform5: (e: E) => Option<F>,
+    transform6: (f: F) => Option<G>,
+    transform7: (g: G) => Option<H>,
+    transform8: (h: H) => Option<I>,
+    transform9: (i: I) => Option<J>,
+    transform10: (j: J) => Option<K>
+  ): Option<K>;
 
   getOrElse(defaultValue: A): A;
 
@@ -30,18 +189,40 @@ abstract class AbstractOption<A> implements Option<A> {
     return fab.flatMap((f: (a: A) => B) => this.map(f));
   }
 
-  map<B>(transform: (a: A) => B): Option<B> {
-    return applyInner<A>(this)<Option<B>>(
-      some => {
-        const newValue = applySafety<A, B>(transform, some.value);
-        return isValid(newValue) ? optionOf<B>(newValue!) : noneOf<B>();
-      },
-      () => noneOf<B>()
+  map<A, B>(transform1: (a: A) => B): Option<B>;
+
+  map(...transforms: Array<(a: unknown) => unknown>): Option<unknown> {
+    const [first, ...others] = transforms;
+    const inner = (
+      option: Option<unknown>,
+      transform: (a: unknown) => unknown
+    ): Option<unknown> => {
+      return applyInner<unknown>(option)<Option<unknown>>(
+        some => {
+          const newValue = applySafety<unknown, unknown>(transform, some.value);
+          return isValid(newValue)
+            ? optionOf<unknown>(newValue!)
+            : noneOf<unknown>();
+        },
+        () => noneOf<unknown>()
+      );
+    };
+    return others.reduce(
+      (option, transform) => inner(option, transform),
+      inner(this as Option<unknown>, first)
     );
   }
 
-  flatMap<B>(transform: (a: A) => Option<B>): Option<B> {
-    return this.map(transform).getOrElse(noneOf<B>());
+  flatMap<A, B>(transform: (a: A) => Option<B>): Option<B>;
+
+  flatMap(
+    ...transforms: Array<(a: unknown) => Option<unknown>>
+  ): Option<unknown> {
+    const [first, ...others] = transforms;
+    return others.reduce(
+      (option, transform) => option.map(transform).getOrElse(noneOf()),
+      this.map(first).getOrElse(noneOf())
+    );
   }
 
   getOrElse(defaultValue: A): A {
@@ -52,7 +233,7 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   filter(predicate: (a: A) => boolean): Option<A> {
-    return this.flatMap(a => (predicate(a) ? this : noneOf<A>()));
+    return this.flatMap<A, A>(a => (predicate(a) ? this : noneOf<A>()));
   }
 
   orElse(supplier: () => Option<A>): Option<A> {

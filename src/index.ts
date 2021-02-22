@@ -1,4 +1,4 @@
-import {Option} from "./option";
+import {Option} from './option';
 
 interface Functor<A> {
   map<B>(transform: (a: A) => B): Functor<B>;
