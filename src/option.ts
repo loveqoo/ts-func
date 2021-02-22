@@ -6,6 +6,84 @@ interface Option<A> extends Monad<A>, MonadOp<A> {
 
   ap<B>(fab: Option<(a: A) => B>): Option<B>;
 
+  ap<B, C>(fab1: Option<(a: A) => B>, fab2: Option<(b: B) => C>): Option<C>;
+
+  ap<B, C, D>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>
+  ): Option<D>;
+
+  ap<B, C, D, E>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>
+  ): Option<E>;
+
+  ap<B, C, D, E, F>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>
+  ): Option<F>;
+
+  ap<B, C, D, E, F, G>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>,
+    fab6: Option<(f: F) => G>
+  ): Option<G>;
+
+  ap<B, C, D, E, F, G, H>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>,
+    fab6: Option<(f: F) => G>,
+    fab7: Option<(g: G) => H>
+  ): Option<H>;
+
+  ap<B, C, D, E, F, G, H, I>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>,
+    fab6: Option<(f: F) => G>,
+    fab7: Option<(g: G) => H>,
+    fab8: Option<(h: H) => I>
+  ): Option<I>;
+
+  ap<B, C, D, E, F, G, H, I, J>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>,
+    fab6: Option<(f: F) => G>,
+    fab7: Option<(g: G) => H>,
+    fab8: Option<(h: H) => I>,
+    fab9: Option<(i: I) => J>
+  ): Option<J>;
+
+  ap<B, C, D, E, F, G, H, I, J, K>(
+    fab1: Option<(a: A) => B>,
+    fab2: Option<(b: B) => C>,
+    fab3: Option<(c: C) => D>,
+    fab4: Option<(d: D) => E>,
+    fab5: Option<(e: E) => F>,
+    fab6: Option<(f: F) => G>,
+    fab7: Option<(g: G) => H>,
+    fab8: Option<(h: H) => I>,
+    fab9: Option<(i: I) => J>,
+    fab10: Option<(j: J) => K>
+  ): Option<K>;
+
   map<B>(transform: (a: A) => B): Option<B>;
 
   map<B, C>(transform1: (a: A) => B, transform2: (a: B) => C): Option<C>;
@@ -185,8 +263,15 @@ abstract class AbstractOption<A> implements Option<A> {
     return optionOf(a);
   }
 
-  ap<B>(fab: Option<(a: A) => B>): Option<B> {
-    return fab.flatMap((f: (a: A) => B) => this.map(f));
+  ap<A, B>(fab: Option<(a: A) => B>): Option<B>;
+
+  ap(...fab: Array<Option<(a: unknown) => unknown>>): Option<unknown> {
+    const [first, ...others] = fab;
+    return others.reduce(
+      (option1, option2) =>
+        option2.flatMap((f: (a: unknown) => unknown) => option1.map(f)),
+      first.flatMap((f: (a: unknown) => unknown) => this.map(f))
+    );
   }
 
   map<A, B>(transform1: (a: A) => B): Option<B>;

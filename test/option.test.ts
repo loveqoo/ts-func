@@ -39,8 +39,17 @@ describe('Option Test', () => {
   });
   test('ap(map x getOrElse)', () => {
     const maybeFive = Option.pure(5);
+    const maybeThree = Option.pure(3);
     const maybeTwo = Option.pure(2);
     expect(maybeTwo.ap(maybeFive.map(f => t => f + t)).getOrElse(0)).toBe(7);
+
+    const sum = (a: number) => (b: number) => a + b;
+    expect(
+      maybeFive.ap(maybeThree.map(sum)).ap(maybeTwo.map(sum)).getOrElse(0)
+    ).toBe(10);
+    expect(
+      maybeFive.ap(maybeThree.map(sum), maybeTwo.map(sum)).getOrElse(0)
+    ).toBe(10);
   });
   test('map x map x map', () => {
     const f1 = (a: number) => a.toString();
