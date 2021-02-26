@@ -335,7 +335,7 @@ class Nil<A> implements ImmutableList<A> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     f: (a: A) => (b: B) => C
   ): ImmutableList<C> {
-    return nilOf<C>();
+    return NIL as ImmutableList<C>;
   }
 
   product<B, C>(
@@ -344,14 +344,14 @@ class Nil<A> implements ImmutableList<A> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     f: (a: A) => (b: B) => C
   ): ImmutableList<C> {
-    return nilOf<C>();
+    return NIL as ImmutableList<C>;
   }
 
   unzip<B, C>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     f: (a: A) => [B, C]
   ): [ImmutableList<B>, ImmutableList<C>] {
-    return [nilOf<B>(), nilOf<C>()];
+    return [NIL as ImmutableList<B>, NIL as ImmutableList<C>];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -361,7 +361,7 @@ class Nil<A> implements ImmutableList<A> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   splitAt(index: number): [ImmutableList<A>, ImmutableList<A>] {
-    return [nilOf<A>(), nilOf<A>()];
+    return [NIL as ImmutableList<A>, NIL as ImmutableList<A>];
   }
 
   hasSubList(sub: ImmutableList<A>): boolean {
@@ -388,7 +388,7 @@ class Nil<A> implements ImmutableList<A> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   splitListAt(index: number): ImmutableList<ImmutableList<A>> {
-    return nilOf<ImmutableList<A>>();
+    return NIL as ImmutableList<ImmutableList<A>>;
   }
 
   toString() {
@@ -771,7 +771,7 @@ const operations = {
           ? Result.pure<[number, number]>([i, i + 1])
           : Result.Empty<[number, number]>()
       )
-      .getOrElse(nilOf<number>()),
+      .getOrElse(NIL as ImmutableList<number>),
   exists: <A>(targetList: ImmutableList<A>, p: (a: A) => boolean): boolean =>
     operations.foldLeftToPair(
       targetList,
@@ -863,8 +863,6 @@ const operations = {
 };
 
 const NIL = new Nil();
-
-const nilOf = <A>(): ImmutableList<A> => new Nil<A>();
 
 const builder = <A>(...items: Array<A>): ImmutableList<A> => {
   return items.reduceRight<ImmutableList<A>>(
