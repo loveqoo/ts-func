@@ -1,7 +1,7 @@
 import {frozen, sealed} from './decorators';
 import {isValid, Monad, MonadOp} from './index';
 
-interface Option<A> extends Monad<A>, MonadOp<A> {
+export interface Option<A> extends Monad<A>, MonadOp<A> {
   pure(a: A): Option<A>;
 
   ap<B>(fab: Option<(a: A) => B>): Option<B>;
@@ -274,7 +274,7 @@ abstract class AbstractOption<A> implements Option<A> {
     );
   }
 
-  map<A, B>(transform1: (a: A) => B): Option<B>;
+  map<A, B>(transform: (a: A) => B): Option<B>;
 
   map(...transforms: Array<(a: unknown) => unknown>): Option<unknown> {
     const [first, ...others] = transforms;
@@ -282,12 +282,10 @@ abstract class AbstractOption<A> implements Option<A> {
       option: Option<unknown>,
       transform: (a: unknown) => unknown
     ): Option<unknown> => {
-      return applyInner<unknown>(option)<Option<unknown>>(
+      return match<unknown>(option)<Option<unknown>>(
         some => {
-          const newValue = applySafety<unknown, unknown>(transform, some.value);
-          return isValid(newValue)
-            ? optionOf<unknown>(newValue!)
-            : noneOf<unknown>();
+          const newValue = execute<unknown, unknown>(transform, some.value);
+          return optionOf<unknown>(newValue!);
         },
         () => noneOf<unknown>()
       );
@@ -311,7 +309,7 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   getOrElse(defaultValue: A): A {
-    return applyInner<A>(this)<A>(
+    return match<A>(this)<A>(
       some => some.value,
       () => defaultValue
     );
@@ -322,7 +320,7 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   orElse(supplier: () => Option<A>): Option<A> {
-    return applyInner<A>(this)<Option<A>>(
+    return match<A>(this)<Option<A>>(
       some => some,
       () => supplier()
     );
@@ -338,7 +336,6 @@ abstract class AbstractOption<A> implements Option<A> {
 class Some<A> extends AbstractOption<A> {
   constructor(readonly value: A) {
     super();
-    this.value = value;
   }
 
   isEmpty(): boolean {
@@ -358,7 +355,7 @@ class None<A> extends AbstractOption<A> {
   }
 }
 
-const applyInner = <A>(option: Option<A>) => <T>(
+const match = <A>(option: Option<A>) => <T>(
   someCallback: (some: Some<A>) => T,
   noneCallback: (none: None<A>) => T
 ): T => {
@@ -371,7 +368,7 @@ const applyInner = <A>(option: Option<A>) => <T>(
   }
 };
 
-const applySafety = <A, B>(f: (a: A) => B, value: A) => {
+const execute = <A, B>(f: (a: A) => B, value: A) => {
   try {
     return f(value);
   } catch (e) {
@@ -380,9 +377,10 @@ const applySafety = <A, B>(f: (a: A) => B, value: A) => {
   }
 };
 
-const optionOf = <A>(value: A): Option<A> =>
-  isValid(value) ? new Some(value) : noneOf<A>();
+const optionOf = <A>(value: A, f: (a: A) => boolean = isValid): Option<A> =>
+  f(value) ? someOf<A>(value) : noneOf<A>();
 
+const someOf = <A>(value: A): Option<A> => new Some<A>(value);
 const noneOf = <A>(): Option<A> => new None<A>();
 
 export const Option = {

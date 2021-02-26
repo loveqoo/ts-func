@@ -1,6 +1,6 @@
 import {frozen, sealed} from './decorators';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface,@typescript-eslint/no-unused-vars
 export interface Trampoline<A> {}
 
 const trampolineOps = (() => {
@@ -21,7 +21,7 @@ const trampolineOps = (() => {
     new Suspend(supplier);
 
   const builder = <A>(
-    f: (...args: unknown[]) => Trampoline<A>,
+    f: (...args: any[]) => Trampoline<A>,
     context?: unknown
   ) => {
     const tryBind = (supplier: (...args: unknown[]) => Trampoline<A>) =>
