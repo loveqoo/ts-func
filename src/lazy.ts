@@ -53,6 +53,9 @@ export const lazyOperations = {
   flatMap: <A, B>(lazyA: Lazy<A>, transform: (a: A) => Lazy<B>): Lazy<B> => {
     return lazyOf(() => transform(lazyA.getValue()).getValue());
   },
+  lift: <A, B>(f: (a: A) => B): ((lazyA: Lazy<A>) => Lazy<B>) => (
+    lazyA: Lazy<A>
+  ) => lazyOf<B>(() => f(lazyA.getValue())),
   lift2: <A, B, C>(
     f: (a: A) => (b: B) => C
   ): ((lazyA: Lazy<A>) => (lazyB: Lazy<B>) => Lazy<C>) => (lazyA: Lazy<A>) => (
