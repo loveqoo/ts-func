@@ -1,5 +1,5 @@
 import {Result} from './result';
-import {done, suspend, Trampoline, trampolineOf} from './Trampoline';
+import {done, suspend, Trampoline, trampolineOf} from './trampoline';
 import {supplyHolders} from './holder';
 
 export interface ImmutableList<A> {
