@@ -32,7 +32,7 @@ interface Holders {
     h3: Supplier<T3>
   ): Supplier<S>;
 
-  hold(...args: any[]): Supplier<any>;
+  hold(...args: unknown[]): Supplier<unknown>;
 }
 
 class HoldersImpl implements Holders {
@@ -62,19 +62,23 @@ class HoldersImpl implements Holders {
     h2: Supplier<T2>,
     h3: Supplier<T3>
   ): Supplier<S>;
-  hold(...args: any[]): any {
+  hold(...args: any[]): unknown {
     switch (args.length) {
       case 2:
         return (() => {
           const t1 = this.supplyOnce(args[1]);
-          return () => (args[0] as GenericFunction1<any, any>).apply(t1());
+          return () =>
+            (args[0] as GenericFunction1<unknown, unknown>).apply(t1());
         })();
       case 3:
         return (() => {
           const t1 = this.supplyOnce(args[1]);
           const t2 = this.supplyOnce(args[2]);
           return () =>
-            (args[0] as GenericFunction2<any, any, any>).apply(t1(), t2());
+            (args[0] as GenericFunction2<unknown, unknown, unknown>).apply(
+              t1(),
+              t2()
+            );
         })();
       case 4:
         return (() => {
@@ -82,11 +86,12 @@ class HoldersImpl implements Holders {
           const t2 = this.supplyOnce(args[2]);
           const t3 = this.supplyOnce(args[3]);
           return () =>
-            (args[0] as GenericFunction3<any, any, any, any>).apply(
-              t1(),
-              t2(),
-              t3()
-            );
+            (args[0] as GenericFunction3<
+              unknown,
+              unknown,
+              unknown,
+              unknown
+            >).apply(t1(), t2(), t3());
         })();
       default: {
         throw Error(`지원하지 않는 파라미터 개수 : ${args.length}`);
