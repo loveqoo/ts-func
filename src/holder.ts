@@ -62,7 +62,7 @@ class HoldersImpl implements Holders {
     h2: Supplier<T2>,
     h3: Supplier<T3>
   ): Supplier<S>;
-  hold(...args: any[]): unknown {
+  hold(...args: never[]): unknown {
     switch (args.length) {
       case 2:
         return (() => {
