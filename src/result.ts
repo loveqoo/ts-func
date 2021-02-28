@@ -164,6 +164,8 @@ export interface Result<A> extends Monad<A>, MonadOp<A> {
     transform10: (j: J) => K
   ): Result<K>;
 
+  map2<B, C>(rb: Result<B>, f: (a: A) => (b: B) => C): Result<C>;
+
   flatMap<B>(transform: (a: A) => Result<B>): Result<B>;
 
   flatMap<B, C>(
@@ -252,8 +254,6 @@ export interface Result<A> extends Monad<A>, MonadOp<A> {
   filter(predicate: (a: A) => boolean): Result<A>;
 
   orElse(supplier: () => Result<A>): Result<A>;
-
-  lift<B>(f: (a: A) => B): (a: Result<A>) => Result<B>;
 }
 
 abstract class AbstractResult<A> implements Result<A> {
@@ -294,6 +294,10 @@ abstract class AbstractResult<A> implements Result<A> {
     );
   }
 
+  map2<B, C>(rb: Result<B>, f: (a: A) => (b: B) => C): Result<C> {
+    return operations.lift2(f)(this)(rb);
+  }
+
   flatMap<A, B>(transform: (a: A) => Result<B>): Result<B>;
 
   flatMap(
@@ -326,10 +330,6 @@ abstract class AbstractResult<A> implements Result<A> {
       () => supplier(),
       () => supplier()
     );
-  }
-
-  lift<B>(f: (a: A) => B): (a: Result<A>) => Result<B> {
-    return (a: Result<A>) => a.map(f);
   }
 }
 
@@ -376,51 +376,21 @@ class Empty<A> extends AbstractResult<A> {
 }
 
 const operations = {
-  filter: <A>(ra: Result<A>, p: (a: A) => boolean): Result<A> => {
-    return ra.flatMap(a => (p(a) ? ra : emptyOf()));
-  },
-  map: <A, B>(ra: Result<A>, f: (a: A) => B): Result<B> => {
-    return match<A>(ra)<Result<B>>(
-      success => {
-        try {
-          return successOf<B>(f(success.value));
-        } catch (e) {
-          return failureOf(e);
-        }
-      },
-      failure => failureOf<B>(failure.error),
-      () => emptyOf<B>()
-    );
-  },
+  filter: <A>(ra: Result<A>, p: (a: A) => boolean): Result<A> =>
+    ra.flatMap(a => (p(a) ? ra : emptyOf())),
   map2: <A, B, C>(
     ra: Result<A>,
     rb: Result<B>,
     f: (a: A) => (b: B) => C
-  ): Result<C> => {
-    return operations.lift2(f)(ra)(rb);
-  },
-  flatMap: <A, B>(ra: Result<A>, f: (a: A) => Result<B>): Result<B> => {
-    return match<A>(ra)<Result<B>>(
-      success => {
-        try {
-          return f(success.value);
-        } catch (e) {
-          return failureOf(e);
-        }
-      },
-      failure => failureOf(failure.error),
-      () => emptyOf()
-    );
-  },
-  lift: <A, B>(f: (a: A) => B): ((r: Result<A>) => Result<B>) => {
-    return (r: Result<A>) => r.map(f);
-  },
+  ): Result<C> => operations.lift2(f)(ra)(rb),
+  lift: <A, B>(f: (a: A) => B): ((r: Result<A>) => Result<B>) => (
+    r: Result<A>
+  ) => r.map(f),
   lift2: <A, B, C>(
     f: (a: A) => (b: B) => C
-  ): ((ra: Result<A>) => (rb: Result<B>) => Result<C>) => {
-    return (ra: Result<A>) => (rb: Result<B>) =>
-      ra.map(f).flatMap((c: (b: B) => C) => rb.map(c));
-  },
+  ): ((ra: Result<A>) => (rb: Result<B>) => Result<C>) => (ra: Result<A>) => (
+    rb: Result<B>
+  ) => ra.map(f).flatMap((c: (b: B) => C) => rb.map(c)),
 };
 
 const match = <A>(result: Result<A>) => <T>(
@@ -469,5 +439,7 @@ export const Result = {
   Empty: emptyOf,
   pure: <A>(a: A): Result<A> => resultOf(a),
   match: match,
-  operations: operations,
+  map2: operations.map2,
+  lift: operations.lift,
+  lift2: operations.lift2,
 };

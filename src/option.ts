@@ -252,8 +252,6 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
   filter(predicate: (a: A) => boolean): Option<A>;
 
   orElse(supplier: () => Option<A>): Option<A>;
-
-  lift<B>(f: (a: A) => B): (a: Option<A>) => Option<B>;
 }
 
 abstract class AbstractOption<A> implements Option<A> {
@@ -325,10 +323,6 @@ abstract class AbstractOption<A> implements Option<A> {
       () => supplier()
     );
   }
-
-  lift<B>(f: (a: A) => B): (a: Option<A>) => Option<B> {
-    return (a: Option<A>) => a.map(f);
-  }
 }
 
 @sealed
@@ -377,6 +371,12 @@ const execute = <A, B>(f: (a: A) => B, value: A) => {
   }
 };
 
+const operations = {
+  lift: <A, B>(f: (a: A) => B): ((a: Option<A>) => Option<B>) => (
+    a: Option<A>
+  ) => a.map(f),
+};
+
 const optionOf = <A>(value: A, f: (a: A) => boolean = isValid): Option<A> =>
   f(value) ? someOf<A>(value) : noneOf<A>();
 
@@ -386,5 +386,6 @@ const noneOf = <A>(): Option<A> => new None<A>();
 export const Option = {
   Some: optionOf,
   None: noneOf,
-  pure: <A>(a: A): Option<A> => optionOf(a),
+  pure: optionOf,
+  lift: operations.lift,
 };
