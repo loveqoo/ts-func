@@ -581,7 +581,7 @@ const operations = {
     f: (a: A) => Result<B>
   ): Result<ImmutableList<B>> =>
     targetList.coFoldRight<Result<ImmutableList<B>>>(Result.Empty(), a => acc =>
-      Result.operations.map2(f(a), acc, b => bb => bb.cons(b))
+      Result.map2(f(a), acc, b => bb => bb.cons(b))
     ),
   zipWith: <A, B, C>(
     aList: ImmutableList<A>,
