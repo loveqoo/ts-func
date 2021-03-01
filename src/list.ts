@@ -1,6 +1,7 @@
 import {Result} from './result';
 import {done, suspend, Trampoline, trampolineOf} from './trampoline';
 import {supplyHolders} from './holder';
+import {Lazy} from './lazy';
 
 export interface ImmutableList<A> {
   readonly length: number;
@@ -635,9 +636,17 @@ const operations = {
               ]
           )()
     ),
-  sequence: <A>(
-    targetList: ImmutableList<Result<A>>
-  ): Result<ImmutableList<A>> => operations.traverse(targetList, ra => ra),
+  sequence: {
+    result: <A>(
+      targetList: ImmutableList<Result<A>>
+    ): Result<ImmutableList<A>> => operations.traverse(targetList, ra => ra),
+    lazy: <A>(targetList: ImmutableList<Lazy<A>>): Lazy<ImmutableList<A>> =>
+      Lazy.pure(() => targetList.map(a => a.getValue())),
+    lazyResult: <A>(
+      targetList: ImmutableList<A>
+    ): Lazy<Result<ImmutableList<A>>> =>
+      Lazy.pure(() => operations.traverse(targetList, a => Result.pure(a))),
+  },
   getAt: <A>(targetList: ImmutableList<A>, index: number): Result<A> => {
     return supplyHolders
       .hold(
