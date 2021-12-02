@@ -44,3 +44,124 @@ const Monoid = {
     arrayString: arrayValueMonoidCombine<string>(stringSemigroup)("")
 }
 
+const Monad = (() => {
+
+    // function pipe<T extends unknown[], A>(
+    //     fnA: (...x: T) => A,
+    // ): (...x: T) => A;
+    // function pipe<T extends unknown[], A, B>(
+    //     fnA: (...x: T) => A,
+    //     fnB: (x: A) => B,
+    // ): (...x: T) => B;
+    // function pipe<T extends unknown[], A, B, C>(
+    //     fnA: (...x: T) => A,
+    //     fnB: (x: A) => B,
+    //     fnC: (x: B) => C,
+    // ): (...x: T) => C;
+    // function pipe<T extends unknown[], A, B, C, D>(
+    //     fnA: (...x: T) => A,
+    //     fnB: (x: A) => B,
+    //     fnC: (x: B) => C,
+    //     fnD: (x: C) => D,
+    // ): (...x: T) => D;
+    // function pipe<T extends unknown[], A, B, C, D, E>(
+    //     fnA: (...x: T) => A,
+    //     fnB: (x: A) => B,
+    //     fnC: (x: B) => C,
+    //     fnD: (x: C) => D,
+    //     fnE: (x: D) => E,
+    // ): (...x: T) => E;
+    // function pipe<T extends unknown[], A, B, C, D, E, F>(
+    //     fnA: (...x: T) => A,
+    //     fnB: (x: A) => B,
+    //     fnC: (x: B) => C,
+    //     fnD: (x: C) => D,
+    //     fnE: (x: D) => E,
+    //     fnF: (x: E) => F,
+    // ): (...x: T) => F;
+    // function pipe(...fns: Array<(...x: unknown[]) => unknown>) {
+    //     return (...x: unknown[]) => {
+    //         const [first, ...others] = fns;
+    //         return others.reduce((val, fn) => fn(val), first(...x));
+    //     };
+    // }
+
+    interface Success<T> {
+        success: true;
+        value: T;
+    }
+
+    interface Failure {
+        success: false;
+        err: string;
+    }
+
+    type Result<T> = Success<T> | Failure;
+
+    // const success = <T>(value: T | (() => T)): Result<T> => {
+    //     if (typeof value === "function") {
+    //         try {
+    //             return {success: true, value: (value as (() => T))()}
+    //         } catch (e) {
+    //             return failure(e.value)
+    //         }
+    //     } else {
+    //         return success(value as T)
+    //     }
+    // }
+    // const failure = <T>(err: string): Result<T> => ({success: false, err});
+    //
+    // const bind = <A, B>(f: (t: A) => Result<B>) => (result: Result<A>): Result<B> => {
+    //     return result.success ? f(result.value) : result
+    // }
+
+    class Pipe<A, B> {
+        constructor(readonly f: (a: A) => B) {
+        }
+        pipe<C>(f: (b: B) => C): Pipe<B, C> {
+           return new Pipe((b: B) => f(b))
+        }
+        run(a: A): B {
+            return this.f(a)
+        }
+        static of = <T, S>(f: (t: T) => S) => new Pipe<T, S>(f)
+    }
+
+    class Ref {
+        _success = <T>(value: T): Result<T> => {
+            return {success: true, value: value}
+        }
+        success = <T>(value: T | (() => T)): Result<T> => {
+            if (typeof value === "function") {
+                try {
+                    return {success: true, value: (value as (() => T))()}
+                } catch (e) {
+                    return this.failure(e.value)
+                }
+            } else {
+                return this._success(value as T)
+            }
+        }
+        failure = <T>(err: string): Result<T> => ({success: false, err});
+        bind = <A, B>(f: (t: A) => Result<B>) => (result: Result<A>): Result<B> => {
+            return result.success ? f(result.value) : result
+        }
+        static of<T>(f: (ref: Ref) => T): T {
+            return f(new Ref())
+        }
+        //static of = <T, S>(f: function(T): S) => Pipe.of(f)
+    }
+
+    const bb = Ref.of(($) => {
+        return Pipe.of((t: number) => t.toString())
+            .pipe(t => parseInt(t))
+            .pipe(t => t * 2)
+            .pipe(t => $.success(t))
+            .pipe($.bind(t => $.success(t + 3)))
+            .run($.success(3))
+    })
+
+    return {};
+})()
+
+
