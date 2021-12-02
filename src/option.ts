@@ -86,6 +86,8 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
 
   map<B>(transform: (a: A) => B): Option<B>;
 
+  combine(other: Option<A>, sga: (a1: A, a2: A) => A): Option<A>;
+
   map<B, C>(transform1: (a: A) => B, transform2: (a: B) => C): Option<C>;
 
   map<B, C, D>(
@@ -294,6 +296,8 @@ abstract class AbstractOption<A> implements Option<A> {
     );
   }
 
+  abstract combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A>;
+
   flatMap<A, B>(transform: (a: A) => Option<B>): Option<B>;
 
   flatMap(
@@ -335,6 +339,14 @@ class Some<A> extends AbstractOption<A> {
   isEmpty(): boolean {
     return false;
   }
+
+  combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A> {
+    if (other instanceof Some) {
+      return someOf(sg(this.value, (other as Some<A>).value));
+    } else {
+      return other;
+    }
+  }
 }
 
 @sealed
@@ -346,6 +358,10 @@ class None<A> extends AbstractOption<A> {
 
   isEmpty(): boolean {
     return true;
+  }
+
+  combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A> {
+    return this;
   }
 }
 
