@@ -1,4 +1,5 @@
 import {Option} from '../src/option';
+import {Semigroup} from "../src/combine";
 
 describe('Option Test', () => {
   test('map x getOrElse - success', () => {
@@ -62,5 +63,22 @@ describe('Option Test', () => {
     const f2 = (a: string) => Option.Some(parseInt(a, 10));
     const f3 = (a: number) => Option.Some(a * 4);
     expect(Option.Some(1).flatMap(f1, f2, f3).getOrElse(() => 0)).toBe(4);
+  });
+  test('combine test', () => {
+    expect(Option.pure(3)
+        .combine(Semigroup.number, Option.pure(6))
+        .getOrElse(() => 0)).toBe(9);
+    expect(Option.pure([1])
+        .combine(Semigroup.array, Option.pure([2]), Option.pure([3]))
+        .map(Semigroup.arrayNumber)
+        .getOrElse(() => 0)).toBe(6);
+    expect(Option.pure(["a"])
+        .combine(Semigroup.array, Option.pure(["b"]), Option.pure(["c"]))
+        .map(Semigroup.arrayString)
+        .getOrElse(() => "")).toBe("abc");
+    expect(Option.pure(["a"])
+        .combine(Semigroup.array, Option.pure(["b"]), Option.None())
+        .map(Semigroup.arrayString)
+        .getOrElse(() => "")).toBe("");
   });
 });

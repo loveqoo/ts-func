@@ -86,8 +86,6 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
 
   map<B>(transform: (a: A) => B): Option<B>;
 
-  combine(other: Option<A>, sga: (a1: A, a2: A) => A): Option<A>;
-
   map<B, C>(transform1: (a: A) => B, transform2: (a: B) => C): Option<C>;
 
   map<B, C, D>(
@@ -249,6 +247,8 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
     transform10: (j: J) => Option<K>
   ): Option<K>;
 
+  combine(sg: (a1: A, a2: A) => A, ...others: Array<Option<A>>): Option<A>;
+
   getOrElse(supplier: () => A): A;
 
   filter(predicate: (a: A) => boolean): Option<A>;
@@ -296,7 +296,11 @@ abstract class AbstractOption<A> implements Option<A> {
     );
   }
 
-  abstract combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A>;
+  combine(sg: (a1: A, a2: A) => A, ...options: Array<Option<A>>): Option<A> {
+    const [first, ...others] = options
+    const f = (o1: Option<A>, o2: Option<A>) => o1.ap(o2.map((f: A) => (t: A) => sg(t, f)))
+    return others.reduce((option, nextOption) => f(option, nextOption), f(this, first))
+  }
 
   flatMap<A, B>(transform: (a: A) => Option<B>): Option<B>;
 
@@ -339,14 +343,6 @@ class Some<A> extends AbstractOption<A> {
   isEmpty(): boolean {
     return false;
   }
-
-  combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A> {
-    if (other instanceof Some) {
-      return someOf(sg(this.value, (other as Some<A>).value));
-    } else {
-      return other;
-    }
-  }
 }
 
 @sealed
@@ -360,7 +356,7 @@ class None<A> extends AbstractOption<A> {
     return true;
   }
 
-  combine(other: Option<A>, sg: (a1: A, a2: A) => A): Option<A> {
+  combine(sg: (a1: A, a2: A) => A, other: Option<A>): Option<A> {
     return this;
   }
 }

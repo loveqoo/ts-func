@@ -780,7 +780,7 @@ const operations = {
           ? Result.pure<[number, number]>([i, i + 1])
           : Result.Empty<[number, number]>()
       )
-      .getOrElse(NIL as ImmutableList<number>),
+      .getOrElse(() => NIL as ImmutableList<number>),
   exists: <A>(targetList: ImmutableList<A>, p: (a: A) => boolean): boolean =>
     operations.foldLeftToPair(
       targetList,
