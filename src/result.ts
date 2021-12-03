@@ -249,7 +249,7 @@ export interface Result<A> extends Monad<A>, MonadOp<A> {
     transform10: (j: J) => Result<K>
   ): Result<K>;
 
-  getOrElse(defaultValue: A): A;
+  getOrElse(supplier: () => A): A;
 
   filter(predicate: (a: A) => boolean): Result<A>;
 
@@ -306,16 +306,16 @@ abstract class AbstractResult<A> implements Result<A> {
     const [first, ...others] = transforms;
     return others.reduce(
       (result, transform) =>
-        result.map(transform).getOrElse(emptyOf<unknown>()),
-      this.map(first).getOrElse(emptyOf<unknown>())
+        result.map(transform).getOrElse(() => emptyOf<unknown>()),
+      this.map(first).getOrElse(() => emptyOf<unknown>())
     );
   }
 
-  getOrElse(defaultValue: A): A {
+  getOrElse(supplier: () => A): A {
     return match<A>(this)<A>(
       success => success.value,
-      () => defaultValue,
-      () => defaultValue
+      () => supplier(),
+      () => supplier()
     );
   }
 

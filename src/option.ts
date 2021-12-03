@@ -249,7 +249,7 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
     transform10: (j: J) => Option<K>
   ): Option<K>;
 
-  getOrElse(defaultValue: A): A;
+  getOrElse(supplier: () => A): A;
 
   filter(predicate: (a: A) => boolean): Option<A>;
 
@@ -305,15 +305,15 @@ abstract class AbstractOption<A> implements Option<A> {
   ): Option<unknown> {
     const [first, ...others] = transforms;
     return others.reduce(
-      (option, transform) => option.map(transform).getOrElse(noneOf()),
-      this.map(first).getOrElse(noneOf())
+      (option, transform) => option.map(transform).getOrElse(() => noneOf()),
+      this.map(first).getOrElse(() => noneOf())
     );
   }
 
-  getOrElse(defaultValue: A): A {
+  getOrElse(supplier: () => A): A {
     return match<A>(this)<A>(
       some => some.value,
-      () => defaultValue
+      () => supplier()
     );
   }
 

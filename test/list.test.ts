@@ -200,11 +200,11 @@ describe('ImmutableList Test', () => {
     expect(result!).toBe(10000);
   });
   test('ImmutableList - getAt', () => {
-    expect(smallList.getAt(4).getOrElse(-1)).toBe(5);
+    expect(smallList.getAt(4).getOrElse(() => -1)).toBe(5);
 
     let result: number | undefined;
     const elapsed = stopWatch(() => {
-      result = bigList.getAt(9999).getOrElse(-1);
+      result = bigList.getAt(9999).getOrElse(() => -1);
     });
     console.log(`getAt() : ${elapsed} ms`);
     expect(elapsed).toBeLessThan(12);
@@ -290,13 +290,13 @@ describe('ImmutableList Test', () => {
       splitResult
         .getAt(0)
         .map(list => list.length)
-        .getOrElse(0)
+        .getOrElse(() => 0)
     ).toBe(2);
     expect(
       splitResult
         .getAt(1)
         .map(list => list.length)
-        .getOrElse(0)
+        .getOrElse(() => 0)
     ).toBe(3);
     let result: ImmutableList<ImmutableList<number>> | undefined;
     const elapsed = stopWatch(() => {
@@ -308,7 +308,7 @@ describe('ImmutableList Test', () => {
       result!
         .getAt(0)
         .map(list => list.length)
-        .getOrElse(0)
+        .getOrElse(() => 0)
     ).toBe(5000);
   });
   test('ImmutableList - divide', () => {
