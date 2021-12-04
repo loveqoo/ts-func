@@ -45,7 +45,15 @@ const trampolineOps = (() => {
     builder: builder,
   };
 })();
-
+/**
+ * 트램폴린을 시작한다.
+ */
 export const trampolineOf = trampolineOps.builder;
+/**
+ * 트램폴린을 완료하고 결과를 리턴한다.
+ */
 export const done = trampolineOps.done;
+/**
+ * 트랜폴린을 재개한다.
+ */
 export const suspend = trampolineOps.suspend;
