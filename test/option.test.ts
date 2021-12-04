@@ -68,8 +68,15 @@ describe('Option Test', () => {
     expect(Option.pure(3)
         .combine(Semigroup.number, Option.pure(6))
         .getOrElse(() => 0)).toBe(9);
+    expect(Option.pure(3)
+        .combine2(Semigroup.number)(Option.pure(6))
+        .getOrElse(() => 0)).toBe(9);
     expect(Option.pure([1])
         .combine(Semigroup.array, Option.pure([2]), Option.pure([3]))
+        .map(Semigroup.arrayNumber)
+        .getOrElse(() => 0)).toBe(6);
+    expect(Option.pure([1])
+        .combine2(Semigroup.array)(Option.pure([2]), Option.pure([3]))
         .map(Semigroup.arrayNumber)
         .getOrElse(() => 0)).toBe(6);
     expect(Option.pure(["a"])
@@ -77,7 +84,15 @@ describe('Option Test', () => {
         .map(Semigroup.arrayString)
         .getOrElse(() => "")).toBe("abc");
     expect(Option.pure(["a"])
+        .combine2(Semigroup.array)(Option.pure(["b"]), Option.pure(["c"]))
+        .map(Semigroup.arrayString)
+        .getOrElse(() => "")).toBe("abc");
+    expect(Option.pure(["a"])
         .combine(Semigroup.array, Option.pure(["b"]), Option.None())
+        .map(Semigroup.arrayString)
+        .getOrElse(() => "")).toBe("");
+    expect(Option.pure(["a"])
+        .combine2(Semigroup.array)(Option.pure(["b"]), Option.None())
         .map(Semigroup.arrayString)
         .getOrElse(() => "")).toBe("");
   });

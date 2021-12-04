@@ -248,6 +248,7 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
   ): Option<K>;
 
   combine(sg: (a1: A, a2: A) => A, ...others: Array<Option<A>>): Option<A>;
+  combine2(sg: (a1: A, a2: A) => A): (...others: Array<Option<A>>) => Option<A>;
 
   getOrElse(supplier: () => A): A;
 
@@ -300,6 +301,14 @@ abstract class AbstractOption<A> implements Option<A> {
     const [first, ...others] = options
     const f = (o1: Option<A>, o2: Option<A>) => o1.ap(o2.map((f: A) => (t: A) => sg(t, f)))
     return others.reduce((option, nextOption) => f(option, nextOption), f(this, first))
+  }
+
+  combine2(sg: (a1: A, a2: A) => A): (...options: Array<Option<A>>) => Option<A> {
+    const f = (o1: Option<A>, o2: Option<A>) => o1.ap(o2.map((f: A) => (t: A) => sg(t, f)))
+    return (...options: Array<Option<A>>) => {
+      const [first, ...others] = options
+      return others.reduce((option, nextOption) => f(option, nextOption), f(this, first))
+    }
   }
 
   flatMap<A, B>(transform: (a: A) => Option<B>): Option<B>;
