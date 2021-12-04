@@ -148,20 +148,49 @@ export interface ImmutableList<A> {
    */
   splitAt(index: number): [ImmutableList<A>, ImmutableList<A>];
 
+  /**
+   * 파라미터로 주어진 리스트가 부분 리스트가 되는지 검사한다.
+   * @param sub 부분리스트 후보
+   */
   hasSubList(sub: ImmutableList<A>): boolean;
 
+  /**
+   * 리스트를 맵으로 그룹핑한다.
+   * @param f 그룹핑에 사용되는 함수. 결과는 맵의 키가 된다.
+   */
   groupBy<B>(f: (a: A) => B): Map<B, ImmutableList<A>>;
 
+  /**
+   * 리스트에 해당 아이템이 존재하는지 검사한다.
+   * @param p 검사할 아이템
+   */
   exists(p: (a: A) => boolean): boolean;
 
+  /**
+   * 리스트에서 주어진 조건이 모두 만족하는지 검사한다.
+   * @param p 조건
+   */
   forAll(p: (a: A) => boolean): boolean;
 
   forEach(ef: (a: A) => void): void;
 
+  /**
+   *
+   * ```typescript
+   * immutableListOf([1,2,3,4,5]).splitListAt(2) = [[1, 2, NIL], [3, 4, 5, NIL], NIL]
+   * ```
+   * @param index 기준 인덱스
+   */
   splitListAt(index: number): ImmutableList<ImmutableList<A>>;
 
+  /**
+   * 리스트의 사이즈.
+   */
   size(): number;
 
+  /**
+   * 메모화 한 리스트 사이즈.
+   */
   lengthMemoized(): number;
 }
 
@@ -681,12 +710,15 @@ const operations = {
     f: (a: A) => Option<B>,
     useCoRecursion = true
   ): Option<ImmutableList<B>> =>
-      useCoRecursion ?
-    targetList.coFoldRight<Option<ImmutableList<B>>>(Option.None(), a => acc =>
-      Option.map2(f(a), acc, b => bb => bb.cons(b))
-    ) : targetList.foldRight<Option<ImmutableList<B>>>(Option.None(), a => acc =>
-              Option.map2(f(a), acc, b => bb => bb.cons(b))
-          ),
+    useCoRecursion
+      ? targetList.coFoldRight<Option<ImmutableList<B>>>(
+          Option.None(),
+          a => acc => Option.map2(f(a), acc, b => bb => bb.cons(b))
+        )
+      : targetList.foldRight<Option<ImmutableList<B>>>(
+          Option.None(),
+          a => acc => Option.map2(f(a), acc, b => bb => bb.cons(b))
+        ),
   /**
    *
    * @param targetList
@@ -1017,15 +1049,23 @@ const builder = <A>(...items: Array<A>): ImmutableList<A> => {
   );
 };
 
-export const isCons = <A>(list: ImmutableList<A>): boolean => {
+const isCons = <A>(list: ImmutableList<A>): boolean => {
   return list instanceof Cons;
 };
 
-export const isNil = <A>(list: ImmutableList<A>): boolean => {
+const isNil = <A>(list: ImmutableList<A>): boolean => {
   return list instanceof Nil;
 };
 
+/**
+ * 가변인자로 리스트를 생성한다.
+ */
 export const immutableListOf = builder;
+
+/**
+ * 배열을 받아서 리스트를 생성한다.
+ * @param array
+ */
 export const immutableListFrom = <A>(array: Array<A>): ImmutableList<A> =>
   immutableListOf(...array);
 

@@ -136,9 +136,9 @@ describe('ImmutableList Test', () => {
     expect(elapsed).toBeLessThan(45);
   });
   test('ImmutableList - zipWith', () => {
-    const otherList = immutableListFrom(["a", "b", "c"])
+    const otherList = immutableListFrom(['a', 'b', 'c']);
     expect(smallList.zipWith(otherList, n => s => `${n}:${s}`).toString()).toBe(
-        '[1:a, 2:b, 3:c, NIL]'
+      '[1:a, 2:b, 3:c, NIL]'
     );
     let result: ImmutableList<string> | undefined;
     const elapsed = stopWatch(() => {
@@ -149,9 +149,9 @@ describe('ImmutableList Test', () => {
     expect(elapsed).toBeLessThan(15);
   });
   test('ImmutableList - product', () => {
-    const otherList = immutableListFrom(["a", "b", "c"])
+    const otherList = immutableListFrom(['a', 'b', 'c']);
     expect(smallList.product(otherList, n => s => `${n}:${s}`).toString()).toBe(
-        '[1:a, 1:b, 1:c, 2:a, 2:b, 2:c, 3:a, 3:b, 3:c, 4:a, 4:b, 4:c, 5:a, 5:b, 5:c, NIL]'
+      '[1:a, 1:b, 1:c, 2:a, 2:b, 2:c, 3:a, 3:b, 3:c, 4:a, 4:b, 4:c, 5:a, 5:b, 5:c, NIL]'
     );
     let result: ImmutableList<string> | undefined;
     const elapsed = stopWatch(() => {
@@ -164,7 +164,7 @@ describe('ImmutableList Test', () => {
 
   test('ImmutableList - unzip', () => {
     expect(smallList.unzip(n => [n, n * 2]).toString()).toBe(
-        '[1, 2, 3, 4, 5, NIL],[2, 4, 6, 8, 10, NIL]'
+      '[1, 2, 3, 4, 5, NIL],[2, 4, 6, 8, 10, NIL]'
     );
     let result: [ImmutableList<number>, ImmutableList<number>] | undefined;
     const elapsed = stopWatch(() => {
@@ -347,6 +347,7 @@ describe('ImmutableList Test', () => {
   });
   test('ImmutableList - splitListAt', () => {
     const splitResult = smallList.splitListAt(2);
+    console.log(splitResult.toString());
     expect(splitResult.length).toBe(2);
     expect(
       splitResult
@@ -365,7 +366,7 @@ describe('ImmutableList Test', () => {
       result = bigList.splitListAt(5000);
     });
     console.log(`splitListAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(12);
+    expect(elapsed).toBeLessThan(18);
     expect(
       result!
         .getAt(0)
