@@ -21,6 +21,7 @@ const trampolineOps = (() => {
     new Suspend(supplier);
 
   const builder = <A>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     f: (...args: any[]) => Trampoline<A>,
     context?: unknown
   ) => {

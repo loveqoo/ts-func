@@ -1,0 +1,16 @@
+{
+  "entryPoints": [
+    "src/combine.ts",
+    "src/decorators.ts",
+    "src/free.ts",
+    "src/holder.ts",
+    "src/index.ts",
+    "src/lazy.ts",
+    "src/list.ts",
+    "src/option.ts",
+    "src/result.ts",
+    "src/stream.ts",
+    "src/trampoline.ts"
+  ],
+  "out": "docs"
+}

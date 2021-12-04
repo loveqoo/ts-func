@@ -10,7 +10,7 @@ export interface Monad<A> extends Applicative<A> {
 }
 export interface MonadOp<A> {
     filter(p: (a: A) => boolean): Monad<A>;
-    getOrElse(defaultValue: A): A;
+    getOrElse(supplier: () => A): A;
     orElse(supplier: () => Monad<A>): Monad<A>;
 }
 export declare const isValid: (value: unknown) => boolean;

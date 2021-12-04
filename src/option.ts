@@ -298,17 +298,27 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   combine(sg: (a1: A, a2: A) => A, ...options: Array<Option<A>>): Option<A> {
-    const [first, ...others] = options
-    const f = (o1: Option<A>, o2: Option<A>) => o1.ap(o2.map((f: A) => (t: A) => sg(t, f)))
-    return others.reduce((option, nextOption) => f(option, nextOption), f(this, first))
+    const [first, ...others] = options;
+    const f = (o1: Option<A>, o2: Option<A>) =>
+      o1.ap(o2.map((f: A) => (t: A) => sg(t, f)));
+    return others.reduce(
+      (option, nextOption) => f(option, nextOption),
+      f(this, first)
+    );
   }
 
-  combine2(sg: (a1: A, a2: A) => A): (...options: Array<Option<A>>) => Option<A> {
-    const f = (o1: Option<A>, o2: Option<A>) => o1.ap(o2.map((f: A) => (t: A) => sg(t, f)))
+  combine2(
+    sg: (a1: A, a2: A) => A
+  ): (...options: Array<Option<A>>) => Option<A> {
+    const f = (o1: Option<A>, o2: Option<A>) =>
+      o1.ap(o2.map((f: A) => (t: A) => sg(t, f)));
     return (...options: Array<Option<A>>) => {
-      const [first, ...others] = options
-      return others.reduce((option, nextOption) => f(option, nextOption), f(this, first))
-    }
+      const [first, ...others] = options;
+      return others.reduce(
+        (option, nextOption) => f(option, nextOption),
+        f(this, first)
+      );
+    };
   }
 
   flatMap<A, B>(transform: (a: A) => Option<B>): Option<B>;
@@ -365,6 +375,7 @@ class None<A> extends AbstractOption<A> {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   combine(sg: (a1: A, a2: A) => A, other: Option<A>): Option<A> {
     return this;
   }
@@ -396,6 +407,16 @@ const operations = {
   lift: <A, B>(f: (a: A) => B): ((a: Option<A>) => Option<B>) => (
     a: Option<A>
   ) => a.map(f),
+  lift2: <A, B, C>(
+    f: (a: A) => (b: B) => C
+  ): ((ra: Option<A>) => (rb: Option<B>) => Option<C>) => (ra: Option<A>) => (
+    rb: Option<B>
+  ) => ra.map(f).flatMap((c: (b: B) => C) => rb.map(c)),
+  map2: <A, B, C>(
+    ra: Option<A>,
+    rb: Option<B>,
+    f: (a: A) => (b: B) => C
+  ): Option<C> => operations.lift2(f)(ra)(rb),
 };
 
 const optionOf = <A>(value: A, f: (a: A) => boolean = isValid): Option<A> =>
@@ -408,5 +429,5 @@ export const Option = {
   Some: optionOf,
   None: noneOf,
   pure: optionOf,
-  lift: operations.lift,
+  ...operations,
 };

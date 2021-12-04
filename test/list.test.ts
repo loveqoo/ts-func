@@ -113,10 +113,72 @@ describe('ImmutableList Test', () => {
     console.log(`coFoldRight() : ${elapsed} ms`);
     expect(elapsed).toBeLessThan(13);
   });
-  test('ImmutableList - concat', () => {
-    expect(smallList.concat(smallList).toString()).toBe(
-      '[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, NIL]'
+  test('ImmutableList - dropLast', () => {
+    expect(smallList.dropLast().toString()).toBe('[1, 2, 3, 4, NIL]');
+    let result: ImmutableList<number> | undefined;
+    const elapsed = stopWatch(() => {
+      result = bigList.dropLast();
+    });
+    expect(!!result).toBe(true);
+    console.log(`dropLast() : ${elapsed} ms`);
+    expect(elapsed).toBeLessThan(16);
+  });
+  test('ImmutableList - traverse', () => {
+    expect(smallList.traverse(Result.pure).toString()).toBe(
+      'Success([1, 2, 3, 4, 5, NIL])'
     );
+    let result: Result<ImmutableList<number>> | undefined;
+    const elapsed = stopWatch(() => {
+      result = bigList.traverse(Result.pure);
+    });
+    expect(!!result).toBe(true);
+    console.log(`traverse() : ${elapsed} ms`);
+    expect(elapsed).toBeLessThan(45);
+  });
+  test('ImmutableList - zipWith', () => {
+    const otherList = immutableListFrom(["a", "b", "c"])
+    expect(smallList.zipWith(otherList, n => s => `${n}:${s}`).toString()).toBe(
+        '[1:a, 2:b, 3:c, NIL]'
+    );
+    let result: ImmutableList<string> | undefined;
+    const elapsed = stopWatch(() => {
+      result = bigList.zipWith(bigList, n => s => `${n}:${s}`);
+    });
+    expect(!!result).toBe(true);
+    console.log(`zipWith() : ${elapsed} ms`);
+    expect(elapsed).toBeLessThan(15);
+  });
+  test('ImmutableList - product', () => {
+    const otherList = immutableListFrom(["a", "b", "c"])
+    expect(smallList.product(otherList, n => s => `${n}:${s}`).toString()).toBe(
+        '[1:a, 1:b, 1:c, 2:a, 2:b, 2:c, 3:a, 3:b, 3:c, 4:a, 4:b, 4:c, 5:a, 5:b, 5:c, NIL]'
+    );
+    let result: ImmutableList<string> | undefined;
+    const elapsed = stopWatch(() => {
+      result = bigList.product(smallList, n => s => `${n}:${s}`);
+    });
+    expect(!!result).toBe(true);
+    console.log(`product() : ${elapsed} ms`);
+    expect(elapsed).toBeLessThan(72);
+  });
+
+  test('ImmutableList - unzip', () => {
+    expect(smallList.unzip(n => [n, n * 2]).toString()).toBe(
+        '[1, 2, 3, 4, 5, NIL],[2, 4, 6, 8, 10, NIL]'
+    );
+    let result: [ImmutableList<number>, ImmutableList<number>] | undefined;
+    const elapsed = stopWatch(() => {
+      result = bigList.unzip(n => [n, n * 2]);
+    });
+    expect(!!result).toBe(true);
+    console.log(`unzip() : ${elapsed} ms`);
+    expect(elapsed).toBeLessThan(23);
+  });
+
+  test('ImmutableList - concat', () => {
+    expect(
+      smallList.concat(immutableListFrom([6, 7, 8, 9, 10])).toString()
+    ).toBe('[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, NIL]');
     const fromList = immutableListOf(0);
     let result: ImmutableList<number> | undefined;
     const elapsed = stopWatch(() => {
@@ -124,7 +186,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`concat() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(16);
+    expect(elapsed).toBeLessThan(14);
   });
   test('ImmutableList - flatten', () => {
     expect(ImmutableList.flatten(nestedSmallList).toString()).toBe(

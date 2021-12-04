@@ -433,13 +433,14 @@ const successOf = <A>(value: A): Result<A> => new Success(value);
 const failureOf = <A>(error: Error): Result<A> => new Failure<A>(error);
 const emptyOf = <A>(): Result<A> => new Empty<A>();
 
+/**
+ * @ignore
+ */
 export const Result = {
   Success: successOf,
   Failure: failureOf,
   Empty: emptyOf,
   pure: <A>(a: A): Result<A> => resultOf(a),
   match: match,
-  map2: operations.map2,
-  lift: operations.lift,
-  lift2: operations.lift2,
+  ...operations,
 };

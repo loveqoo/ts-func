@@ -2,64 +2,150 @@ import {Result} from './result';
 import {done, suspend, Trampoline, trampolineOf} from './trampoline';
 import {supplyHolders} from './holder';
 import {Lazy} from './lazy';
+import {Option} from './option';
 
+/**
+ * 함수형으로 재정의한 불변 리스트 인터페이스.
+ */
 export interface ImmutableList<A> {
   readonly length: number;
 
   isEmpty(): boolean;
 
+  /**
+   * 리스트 앞에 아이템을 추가한다.
+   * @param a 리스트에 추가 할 아이템
+   */
   cons(a: A): ImmutableList<A>;
 
+  /**
+   * 리스트의 첫 번째 원소를 바꾼다.
+   * @param a 바꾸고 싶은 첫 아이템
+   */
   setHead(a: A): ImmutableList<A>;
 
+  /**
+   * 리스트의 첫 번째 원소를 반환한다.
+   */
   getHead(): Result<A>;
 
+  /**
+   * 리스트의 마지막 원소를 반환한다.
+   */
   getLast(): Result<A>;
 
   /**
-   * [1,2,3,4,5].drop(4) = [5]
+   * 첫 원소부터 지정한 개수 많큼 제거한 후 리스트를 반환한다.
+   *
+   * ```typescript
+   * immutableListOf([1,2,3,4,5]).drop(4) = [5]
+   * ```
    */
   drop(n: number): ImmutableList<A>;
 
   /**
-   * [1,4,2,5,3].drop((v) => v < 5)) = [5,3]
+   * 리스트의 맨 앞부터 조건에 맞는 동안 원소를 제거 후 리스트를 반환한다.
+   * ```typescript
+   * immutableListOf([1,4,2,5,3].)dropWhile((v) => v < 5)) = [5,3]
+   * ```
    */
   dropWhile(p: (a: A) => boolean): ImmutableList<A>;
 
-  concat(another: ImmutableList<A>): ImmutableList<A>;
+  /**
+   * 두 리스트를 결합하여 새로운 리스트를 반환한다.
+   * 기존 리스트 뒤에 결합된다.
+   * @param another 합칠 새로운 리스트.
+   * @param useFoldLeft 두 리스트를 합칠 때 사용하는 방식, default true
+   */
+  concat(another: ImmutableList<A>, useFoldLeft?: boolean): ImmutableList<A>;
 
+  /**
+   * 리스트의 아이템을 역순서로 바꾼다.
+   */
   reverse(): ImmutableList<A>;
 
+  /**
+   * 마지막 원소를 하나 제거한다.
+   */
+  dropLast(): ImmutableList<A>;
+
+  /**
+   * 마지막 원소를 하나 제거한다.
+   * [Haskel-init](http://zvon.org/other/haskell/Outputprelude/init_f.html)
+   */
   init(): ImmutableList<A>;
 
   foldLeft<B>(identity: B, f: (b: B) => (a: A) => B): B;
 
   foldRight<B>(identity: B, f: (a: A) => (b: B) => B): B;
 
+  /**
+   * 공재귀를 이용한 foldRight 함수.
+   * @param identity  항등원
+   * @param f
+   */
   coFoldRight<B>(identity: B, f: (a: A) => (b: B) => B): B;
 
   map<B>(f: (a: A) => B): ImmutableList<B>;
 
+  /**
+   * 조건에 맞는 엘리먼트만 모아서 리스트로 리턴한다.
+   * @param p
+   */
   filter(p: (a: A) => boolean): ImmutableList<A>;
 
   flatMap<B>(f: (a: A) => ImmutableList<B>): ImmutableList<B>;
 
-  traverse<B>(f: (a: A) => Result<B>): Result<ImmutableList<B>>;
+  /**
+   * 리스트의 모든 아이템을 순회하여 {@link Result}를 이용해서 안전하게 계산한다.
+   * @param f 아이템을 변경할 함수
+   * @param useCoRecursion 공재귀를 사용 여부 - default true
+   */
+  traverse<B>(
+    f: (a: A) => Result<B>,
+    useCoRecursion?: boolean
+  ): Result<ImmutableList<B>>;
 
+  /**
+   * 리스트를 서로 묶는다.
+   * 두 리스트 중에 짧은 리스트에 의해 결과가 제약된다.
+   * @param bList 새로 묶을 리스트
+   * @param f 리스트의 각 원소를 받아서 계산하는 함수
+   */
   zipWith<B, C>(
     bList: ImmutableList<B>,
     f: (a: A) => (b: B) => C
   ): ImmutableList<C>;
 
+  /**
+   * 두 리스트의 모든 경우의 수를 구해 리스트로 리턴한다.
+   * @param bList 경우의 수를 계산할 리스트
+   * @param f 리스트의 각 원소를 받아서 계산하는 함수
+   */
   product<B, C>(
     bList: ImmutableList<B>,
     f: (a: A) => (b: B) => C
   ): ImmutableList<C>;
 
+  /**
+   * 조건을 받아 리스트를 2개의 그룹으로 분리한다.
+   * @param f 아이템을 받아서 `Pair`로 변경하는 함수
+   */
   unzip<B, C>(f: (a: A) => [B, C]): [ImmutableList<B>, ImmutableList<C>];
 
+  /**
+   * 리스트의 아이템을 조회한다.
+   * @param index
+   */
   getAt(index: number): Result<A>;
 
+  /**
+   * 리스트를 인덱스 아이디 기준으로 분리한다.
+   * ```typescript
+   * immutableListOf([1,2,3,4,5]).splitAt(2) = [[1,2,NIL],[3,4,5,NIL]]
+   * ```
+   * @param index 기준 인덱스. 해당 인덱스의 아이템은 오른쪽에 분리된다.
+   */
   splitAt(index: number): [ImmutableList<A>, ImmutableList<A>];
 
   hasSubList(sub: ImmutableList<A>): boolean;
@@ -124,8 +210,10 @@ abstract class AbstractCons<A> implements ImmutableList<A> {
     return operations.dropWhile(this, p);
   }
 
-  concat(another: ImmutableList<A>): ImmutableList<A> {
-    return operations.concat.viaFoldLeft(this, another);
+  concat(another: ImmutableList<A>, useFoldLeft = true): ImmutableList<A> {
+    return useFoldLeft
+      ? operations.concat.viaFoldLeft(this, another)
+      : operations.concat.viaFoldRight(this, another);
   }
 
   reverse(): ImmutableList<A> {
@@ -134,6 +222,10 @@ abstract class AbstractCons<A> implements ImmutableList<A> {
 
   init(): ImmutableList<A> {
     return this.reverse().drop(1).reverse();
+  }
+
+  dropLast(): ImmutableList<A> {
+    return this.init();
   }
 
   foldLeft<B>(identity: B, f: (b: B) => (a: A) => B): B {
@@ -168,8 +260,11 @@ abstract class AbstractCons<A> implements ImmutableList<A> {
     return operations.flatMap(this, f);
   }
 
-  traverse<B>(f: (a: A) => Result<B>): Result<ImmutableList<B>> {
-    return operations.traverse(this, f);
+  traverse<B>(
+    f: (a: A) => Result<B>,
+    useCoRecursion = true
+  ): Result<ImmutableList<B>> {
+    return operations.traverseToResult(this, f, useCoRecursion);
   }
 
   zipWith<B, C>(
@@ -286,6 +381,10 @@ class Nil<A> implements ImmutableList<A> {
   }
 
   init(): ImmutableList<A> {
+    return this as ImmutableList<A>;
+  }
+
+  dropLast(): ImmutableList<A> {
     return this as ImmutableList<A>;
   }
 
@@ -577,13 +676,37 @@ const operations = {
     operations.foldLeft(targetList, Result.Empty() as Result<A>, () => a =>
       Result.pure(a)
     ),
-  traverse: <A, B>(
+  traverseToOption: <A, B>(
     targetList: ImmutableList<A>,
-    f: (a: A) => Result<B>
+    f: (a: A) => Option<B>,
+    useCoRecursion = true
+  ): Option<ImmutableList<B>> =>
+      useCoRecursion ?
+    targetList.coFoldRight<Option<ImmutableList<B>>>(Option.None(), a => acc =>
+      Option.map2(f(a), acc, b => bb => bb.cons(b))
+    ) : targetList.foldRight<Option<ImmutableList<B>>>(Option.None(), a => acc =>
+              Option.map2(f(a), acc, b => bb => bb.cons(b))
+          ),
+  /**
+   *
+   * @param targetList
+   * @param f
+   * @param useCoRecursion
+   */
+  traverseToResult: <A, B>(
+    targetList: ImmutableList<A>,
+    f: (a: A) => Result<B>,
+    useCoRecursion = true
   ): Result<ImmutableList<B>> =>
-    targetList.coFoldRight<Result<ImmutableList<B>>>(Result.Empty(), a => acc =>
-      Result.map2(f(a), acc, b => bb => bb.cons(b))
-    ),
+    useCoRecursion
+      ? targetList.coFoldRight<Result<ImmutableList<B>>>(
+          Result.pure(immutableListOf()),
+          a => acc => Result.map2(f(a), acc, b => bb => bb.cons(b))
+        )
+      : targetList.foldRight<Result<ImmutableList<B>>>(
+          Result.pure(immutableListOf()),
+          a => acc => Result.map2(f(a), acc, b => bb => bb.cons(b))
+        ),
   zipWith: <A, B, C>(
     aList: ImmutableList<A>,
     bList: ImmutableList<B>,
@@ -637,15 +760,28 @@ const operations = {
           )()
     ),
   sequence: {
+    option: <A>(
+      targetList: ImmutableList<Option<A>>
+    ): Option<ImmutableList<A>> =>
+      operations.traverseToOption(targetList, ra => ra),
     result: <A>(
       targetList: ImmutableList<Result<A>>
-    ): Result<ImmutableList<A>> => operations.traverse(targetList, ra => ra),
+    ): Result<ImmutableList<A>> =>
+      operations.traverseToResult(targetList, ra => ra),
     lazy: <A>(targetList: ImmutableList<Lazy<A>>): Lazy<ImmutableList<A>> =>
       Lazy.pure(() => targetList.map(a => a.getValue())),
+    lazyOption: <A>(
+      targetList: ImmutableList<A>
+    ): Lazy<Option<ImmutableList<A>>> =>
+      Lazy.pure(() =>
+        operations.traverseToOption(targetList, a => Option.pure(a))
+      ),
     lazyResult: <A>(
       targetList: ImmutableList<A>
     ): Lazy<Result<ImmutableList<A>>> =>
-      Lazy.pure(() => operations.traverse(targetList, a => Result.pure(a))),
+      Lazy.pure(() =>
+        operations.traverseToResult(targetList, a => Result.pure(a))
+      ),
   },
   getAt: <A>(targetList: ImmutableList<A>, index: number): Result<A> => {
     return supplyHolders
@@ -893,6 +1029,9 @@ export const immutableListOf = builder;
 export const immutableListFrom = <A>(array: Array<A>): ImmutableList<A> =>
   immutableListOf(...array);
 
+/**
+ * @ignore
+ */
 export const ImmutableList = {
   ...operations,
   isCons: isCons,

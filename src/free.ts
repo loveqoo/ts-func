@@ -2,6 +2,7 @@ import {frozen, sealed} from './decorators';
 
 type GenericFunction<R> = (...args: unknown[]) => R;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 abstract class Free<F extends GenericFunction<I>, I, A> {
   map<B>(transform: (a: A) => B): Free<GenericFunction<A>, A, B> {
     return this.flatMap<B>((a: A) => new Return<A, B>(transform(a)));
