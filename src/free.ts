@@ -1,48 +1,47 @@
-import {frozen, sealed} from './decorators';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FreeFlatMap<R> = (...args: any[]) => Free<R>;
+export type Suspend<A> = {f: FreeFlatMap<A>};
+export type Done<A> = {value: A};
+export type Free<A> = Suspend<A> | Done<A>;
 
-type GenericFunction<R> = (...args: unknown[]) => R;
+const isDone = <A>(free: Free<A>): free is Done<A> => 'value' in free;
+export const suspend = <A>(f: FreeFlatMap<A>): Free<A> => ({f});
+export const done = <A>(value: A): Free<A> => ({value});
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-abstract class Free<F extends GenericFunction<I>, I, A> {
-  map<B>(transform: (a: A) => B): Free<GenericFunction<A>, A, B> {
-    return this.flatMap<B>((a: A) => new Return<A, B>(transform(a)));
+export interface Compiler<T> {
+  context?: unknown;
+
+  onSuspend(f: FreeFlatMap<T>): FreeFlatMap<T>;
+
+  compile(f: FreeFlatMap<T>): (...args: unknown[]) => T;
+}
+
+class Trampoline<T> implements Compiler<T> {
+  constructor(readonly context: unknown) {}
+
+  onSuspend(f: FreeFlatMap<T>): FreeFlatMap<T> {
+    return this.context ? f.bind(this.context) : f;
   }
-  flatMap<B>(
-    transform: (a: A) => Free<GenericFunction<A>, A, B>
-  ): Free<GenericFunction<A>, A, B> {
-    if (this instanceof Return) {
-      return transform(this.value);
-    } else if (this instanceof Continue) {
-      return new Continue<A, B>(this.sub, (a: A) => transform(a));
-    } else {
-      throw new Error('Free 타입의 인스턴스가 아님');
-    }
-  }
 
-  static pure<F extends GenericFunction<A>, A>(f: F): Free<F, A, A> {
-    return new Continue<A, A>(f, a => new Return<A, A>(a));
-  }
-
-  static lift<F extends GenericFunction<A>, A>(f: F): Free<F, A, A> {
-    return new Continue<A, A>(f, a => new Return<A, A>(a));
+  compile(f: FreeFlatMap<T>): (...args: unknown[]) => T {
+    return (...args: unknown[]) => {
+      let r = this.onSuspend(f)(...args);
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (isDone(r)) {
+          return r.value;
+        } else {
+          r = this.onSuspend(r.f)();
+        }
+      }
+    };
   }
 }
 
-@sealed
-@frozen
-class Return<I, A> extends Free<GenericFunction<I>, I, A> {
-  constructor(readonly value: A) {
-    super();
-  }
-}
+const compiler = <A>(supplier: (context?: unknown) => Compiler<A>) => (
+  program: FreeFlatMap<A>,
+  context?: unknown
+) => (...args: unknown[]) => supplier(context).compile(program)(...args);
 
-@sealed
-@frozen
-class Continue<I, A> extends Free<GenericFunction<I>, I, A> {
-  constructor(
-    readonly sub: GenericFunction<I>,
-    readonly transform: (a: I) => Free<GenericFunction<I>, I, A>
-  ) {
-    super();
-  }
-}
+export const trampoline = <A>(program: FreeFlatMap<A>, context?: unknown) =>
+  compiler((context?: unknown) => new Trampoline<A>(context))(program, context);
