@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FreeFlatMap<R> = (...args: any[]) => Free<R>;
+export type FreeFlatMap<R> = (...args: any[]) => Free<R>;
 export type Suspend<A> = {f: FreeFlatMap<A>};
 export type Done<A> = {value: A};
 export type Free<A> = Suspend<A> | Done<A>;
 
-const isDone = <A>(free: Free<A>): free is Done<A> => 'value' in free;
+export const isDone = <A>(free: Free<A>): free is Done<A> => 'value' in free;
 export const suspend = <A>(f: FreeFlatMap<A>): Free<A> => ({f});
 export const done = <A>(value: A): Free<A> => ({value});
 
@@ -38,7 +38,7 @@ class Trampoline<T> implements Compiler<T> {
   }
 }
 
-const compiler = <A>(supplier: (context?: unknown) => Compiler<A>) => (
+export const compiler = <A>(supplier: (context?: unknown) => Compiler<A>) => (
   program: FreeFlatMap<A>,
   context?: unknown
 ) => (...args: unknown[]) => supplier(context).compile(program)(...args);
