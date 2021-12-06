@@ -332,7 +332,7 @@ describe('ImmutableList Test', () => {
       result = bigList.exists(v => v === 9898);
     });
     console.log(`exists() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(10);
+    expect(elapsed).toBeLessThan(12);
     expect(result!).toBe(true);
   });
   test('ImmutableList - forAll', () => {
