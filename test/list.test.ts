@@ -146,7 +146,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`zipWith() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(15);
+    expect(elapsed).toBeLessThan(18);
   });
   test('ImmutableList - product', () => {
     const otherList = immutableListFrom(['a', 'b', 'c']);
@@ -159,7 +159,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`product() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(72);
+    expect(elapsed).toBeLessThan(130);
   });
 
   test('ImmutableList - unzip', () => {
@@ -172,7 +172,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`unzip() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(23);
+    expect(elapsed).toBeLessThan(25);
   });
 
   test('ImmutableList - concat', () => {
@@ -269,7 +269,7 @@ describe('ImmutableList Test', () => {
       result = bigList.getAt(9999).getOrElse(() => -1);
     });
     console.log(`getAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(12);
+    expect(elapsed).toBeLessThan(14);
     expect(result!).toBe(10000);
   });
   test('ImmutableList - splitAt', () => {
@@ -295,7 +295,7 @@ describe('ImmutableList Test', () => {
       result = bigList.hasSubList(immutableListFrom([7777, 7778, 7779, 7780]));
     });
     console.log(`hasSubList() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(16);
+    expect(elapsed).toBeLessThan(18);
     expect(result!).toBe(true);
   });
   test('ImmutableList - groupBy', () => {
