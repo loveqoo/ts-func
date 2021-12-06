@@ -269,7 +269,7 @@ describe('ImmutableList Test', () => {
       result = bigList.getAt(9999).getOrElse(() => -1);
     });
     console.log(`getAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(14);
+    expect(elapsed).toBeLessThan(16);
     expect(result!).toBe(10000);
   });
   test('ImmutableList - splitAt', () => {
