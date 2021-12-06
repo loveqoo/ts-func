@@ -36,7 +36,7 @@ jobs:
       - run: npm run typedoc --if-present
       - uses: EndBug/add-and-commit@v7
         with:
-          #add: 'docs'
+          add: 'docs'
           author_name: loveqoo
           branch: gh-pages
           branch_mode: create
