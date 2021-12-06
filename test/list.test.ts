@@ -282,7 +282,7 @@ describe('ImmutableList Test', () => {
       result = bigList.splitAt(5000);
     });
     console.log(`splitAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(10);
+    expect(elapsed).toBeLessThan(12);
     expect(result![0].length).toBe(5000);
     expect(result![1].length).toBe(5000);
   });
@@ -295,7 +295,7 @@ describe('ImmutableList Test', () => {
       result = bigList.hasSubList(immutableListFrom([7777, 7778, 7779, 7780]));
     });
     console.log(`hasSubList() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(18);
+    expect(elapsed).toBeLessThan(20);
     expect(result!).toBe(true);
   });
   test('ImmutableList - groupBy', () => {
