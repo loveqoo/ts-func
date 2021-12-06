@@ -1,9 +1,9 @@
-import {done, Free, suspend, trampoline} from '../src/free';
+import {done, FreeTrampoline, suspend, trampoline} from '../src/free';
 
 describe('Free Test', () => {
   test('Trampoline - Sum', () => {
-    const sum = (n: number): Free<number> => {
-      const inner = (a: number, result = 0): Free<number> =>
+    const sum = (n: number): FreeTrampoline<number> => {
+      const inner = (a: number, result = 0): FreeTrampoline<number> =>
         a
           ? suspend(() => {
               return inner(a - 1, result + a);
@@ -23,8 +23,12 @@ describe('Free Test', () => {
     expect(() => oldFibonacciProgram(10000)).toThrow(
       'Maximum call stack size exceeded'
     );
-    const fibonacciProgram = (n: number): Free<number> => {
-      const f = (a: number, b: number, count: number): Free<number> => {
+    const fibonacciProgram = (n: number): FreeTrampoline<number> => {
+      const f = (
+        a: number,
+        b: number,
+        count: number
+      ): FreeTrampoline<number> => {
         return count === n
           ? done(a + b)
           : suspend(() => f(b, a + b, count + 1));
