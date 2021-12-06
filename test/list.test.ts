@@ -295,7 +295,7 @@ describe('ImmutableList Test', () => {
       result = bigList.hasSubList(immutableListFrom([7777, 7778, 7779, 7780]));
     });
     console.log(`hasSubList() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(22);
+    expect(elapsed).toBeLessThan(26);
     expect(result!).toBe(true);
   });
   test('ImmutableList - groupBy', () => {
