@@ -1,8 +1,8 @@
-interface Functor<A> {
+export interface Functor<A> {
   map<B>(transform: (a: A) => B): Functor<B>;
 }
 
-interface Applicative<A> extends Functor<A> {
+export interface Applicative<A> extends Functor<A> {
   pure(a: A): Applicative<A>;
 
   ap<B>(fab: Applicative<(a: A) => B>): Applicative<B>;

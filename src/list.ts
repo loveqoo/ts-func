@@ -2,7 +2,7 @@ import {Result} from './result';
 import {supplyHolders} from './holder';
 import {Lazy} from './lazy';
 import {Option} from './option';
-import {done, Trampoline, suspend, trampoline} from './trampolin';
+import {done, Trampoline, suspend, trampoline} from './trampoline';
 
 /**
  * 함수형으로 재정의한 불변 리스트 인터페이스.

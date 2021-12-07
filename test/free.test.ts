@@ -1,4 +1,4 @@
-import {done, Trampoline, suspend, trampoline} from '../src/trampolin';
+import {done, Trampoline, suspend, trampoline} from '../src/trampoline';
 
 describe('Free Test', () => {
   test('Trampoline - Sum', () => {
