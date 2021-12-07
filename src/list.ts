@@ -2,7 +2,7 @@ import {Result} from './result';
 import {supplyHolders} from './holder';
 import {Lazy} from './lazy';
 import {Option} from './option';
-import {done, Free, suspend, trampoline} from './free';
+import {done, Trampoline, suspend, trampoline} from './trampolin';
 
 /**
  * 함수형으로 재정의한 불변 리스트 인터페이스.
@@ -350,9 +350,9 @@ abstract class AbstractCons<A> implements ImmutableList<A> {
     return `[${trampoline(this.toStringDetails, this)()}NIL]`;
   }
 
-  private toStringDetails(): Free<string> {
-    const inner = (acc: string, list: ImmutableList<A>): Free<string> =>
-      applyToList<A, Free<string>>(
+  private toStringDetails(): Trampoline<string> {
+    const inner = (acc: string, list: ImmutableList<A>): Trampoline<string> =>
+      applyToList<A, Trampoline<string>>(
         list,
         cons => suspend(() => inner(`${acc}${cons.head}, `, cons.tail)),
         () => done(acc)
@@ -545,8 +545,8 @@ const operations = {
     identity: B,
     f: (b: B) => (a: A) => B
   ): B => {
-    const inner = (acc: B, list: ImmutableList<A>): Free<B> =>
-      applyToList<A, Free<B>>(
+    const inner = (acc: B, list: ImmutableList<A>): Trampoline<B> =>
+      applyToList<A, Trampoline<B>>(
         list,
         cons => suspend(() => inner(f(acc)(cons.head), cons.tail)),
         () => done(acc)
@@ -563,8 +563,8 @@ const operations = {
       acc: B,
       p: (b: B) => boolean,
       list: ImmutableList<A>
-    ): Free<B> =>
-      applyToList<A, Free<B>>(
+    ): Trampoline<B> =>
+      applyToList<A, Trampoline<B>>(
         list,
         cons =>
           p(acc)
@@ -589,8 +589,8 @@ const operations = {
       zero: B,
       list: ImmutableList<A>,
       f: (b: B) => (a: A) => B
-    ): Free<[B, ImmutableList<A>]> =>
-      applyToList<A, Free<[B, ImmutableList<A>]>>(
+    ): Trampoline<[B, ImmutableList<A>]> =>
+      applyToList<A, Trampoline<[B, ImmutableList<A>]>>(
         list,
         cons =>
           equals(acc, zero)
@@ -605,8 +605,8 @@ const operations = {
     identity: B,
     f: (a: A) => (b: B) => B
   ): B => {
-    const inner = (acc: B, list: ImmutableList<A>): Free<B> =>
-      applyToList<A, Free<B>>(
+    const inner = (acc: B, list: ImmutableList<A>): Trampoline<B> =>
+      applyToList<A, Trampoline<B>>(
         list,
         cons => {
           return done(f(cons.head)(trampoline(inner)(acc, cons.tail)));
@@ -625,8 +625,8 @@ const operations = {
       reversedList: ImmutableList<A>,
       identity: B,
       f: (a: A) => (b: B) => B
-    ): Free<B> =>
-      applyToList<A, Free<B>>(
+    ): Trampoline<B> =>
+      applyToList<A, Trampoline<B>>(
         reversedList,
         cons => suspend(() => inner(f(cons.head)(acc), cons.tail, identity, f)),
         () => done(acc)
@@ -634,9 +634,12 @@ const operations = {
     return trampoline(inner)(identity, targetList.reverse(), identity, f);
   },
   drop: <A>(targetList: ImmutableList<A>, n: number): ImmutableList<A> => {
-    const inner = (n: number, list: ImmutableList<A>): Free<ImmutableList<A>> =>
+    const inner = (
+      n: number,
+      list: ImmutableList<A>
+    ): Trampoline<ImmutableList<A>> =>
       n
-        ? applyToList<A, Free<ImmutableList<A>>>(
+        ? applyToList<A, Trampoline<ImmutableList<A>>>(
             list,
             cons => suspend(() => inner(n - 1, cons.tail)),
             nil => done(nil as ImmutableList<A>)
@@ -648,8 +651,8 @@ const operations = {
     targetList: ImmutableList<A>,
     predicate: (a: A) => boolean
   ): ImmutableList<A> => {
-    const inner = (list: ImmutableList<A>): Free<ImmutableList<A>> =>
-      applyToList<A, Free<ImmutableList<A>>>(
+    const inner = (list: ImmutableList<A>): Trampoline<ImmutableList<A>> =>
+      applyToList<A, Trampoline<ImmutableList<A>>>(
         list,
         cons =>
           predicate(cons.head) ? suspend(() => inner(cons.tail)) : done(list),
@@ -745,7 +748,7 @@ const operations = {
       acc: ImmutableList<C>,
       list1: ImmutableList<A>,
       list2: ImmutableList<B>
-    ): Free<ImmutableList<C>> =>
+    ): Trampoline<ImmutableList<C>> =>
       applyToList(
         list1,
         list1Cons => {
@@ -868,7 +871,7 @@ const operations = {
     const inner = (
       list: ImmutableList<A>,
       sub: ImmutableList<A>
-    ): Free<boolean> =>
+    ): Trampoline<boolean> =>
       applyToList(
         sub,
         subCons =>
@@ -891,7 +894,7 @@ const operations = {
     const inner = (
       list: ImmutableList<A>,
       sub: ImmutableList<A>
-    ): Free<boolean> =>
+    ): Trampoline<boolean> =>
       applyToList(
         list,
         listCons =>
@@ -925,7 +928,7 @@ const operations = {
     const inner = (
       acc: ImmutableList<A>,
       z: S
-    ): Free<Result<ImmutableList<A>>> => {
+    ): Trampoline<Result<ImmutableList<A>>> => {
       const next = getNext(z);
       return Result.match<[A, S]>(next)(
         success =>
@@ -963,7 +966,7 @@ const operations = {
       acc => a => acc && p(a)
     )[0],
   forEach: <A>(targetList: ImmutableList<A>, ef: (a: A) => void): void => {
-    const inner = (list: ImmutableList<A>): Free<boolean> =>
+    const inner = (list: ImmutableList<A>): Trampoline<boolean> =>
       applyToList(
         list,
         cons => {
@@ -982,7 +985,7 @@ const operations = {
       acc: ImmutableList<A>,
       list: ImmutableList<A>,
       i: number
-    ): Free<ImmutableList<ImmutableList<A>>> =>
+    ): Trampoline<ImmutableList<ImmutableList<A>>> =>
       applyToList(
         list,
         cons =>
@@ -1010,7 +1013,7 @@ const operations = {
     const inner = (
       list: ImmutableList<ImmutableList<A>>,
       innerDepth: number
-    ): Free<ImmutableList<ImmutableList<A>>> => {
+    ): Trampoline<ImmutableList<ImmutableList<A>>> => {
       return applyToList(
         list,
         cons => {

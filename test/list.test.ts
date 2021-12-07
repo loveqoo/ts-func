@@ -146,7 +146,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`zipWith() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(15);
+    expect(elapsed).toBeLessThan(18);
   });
   test('ImmutableList - product', () => {
     const otherList = immutableListFrom(['a', 'b', 'c']);
@@ -159,7 +159,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`product() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(72);
+    expect(elapsed).toBeLessThan(130);
   });
 
   test('ImmutableList - unzip', () => {
@@ -172,7 +172,7 @@ describe('ImmutableList Test', () => {
     });
     expect(!!result).toBe(true);
     console.log(`unzip() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(23);
+    expect(elapsed).toBeLessThan(25);
   });
 
   test('ImmutableList - concat', () => {
@@ -269,7 +269,7 @@ describe('ImmutableList Test', () => {
       result = bigList.getAt(9999).getOrElse(() => -1);
     });
     console.log(`getAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(12);
+    expect(elapsed).toBeLessThan(16);
     expect(result!).toBe(10000);
   });
   test('ImmutableList - splitAt', () => {
@@ -282,7 +282,7 @@ describe('ImmutableList Test', () => {
       result = bigList.splitAt(5000);
     });
     console.log(`splitAt() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(10);
+    expect(elapsed).toBeLessThan(12);
     expect(result![0].length).toBe(5000);
     expect(result![1].length).toBe(5000);
   });
@@ -295,7 +295,7 @@ describe('ImmutableList Test', () => {
       result = bigList.hasSubList(immutableListFrom([7777, 7778, 7779, 7780]));
     });
     console.log(`hasSubList() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(16);
+    expect(elapsed).toBeLessThan(26);
     expect(result!).toBe(true);
   });
   test('ImmutableList - groupBy', () => {
@@ -332,7 +332,7 @@ describe('ImmutableList Test', () => {
       result = bigList.exists(v => v === 9898);
     });
     console.log(`exists() : ${elapsed} ms`);
-    expect(elapsed).toBeLessThan(10);
+    expect(elapsed).toBeLessThan(12);
     expect(result!).toBe(true);
   });
   test('ImmutableList - forAll', () => {
