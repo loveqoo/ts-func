@@ -813,7 +813,7 @@ const operations = {
     ): Lazy<Result<ImmutableList<A>>> =>
       Lazy.pure(() =>
         operations.traverseToResult(targetList, a => Result.pure(a))
-      ),
+      )
   },
   getAt: <A>(targetList: ImmutableList<A>, index: number): Result<A> => {
     return supplyHolders
