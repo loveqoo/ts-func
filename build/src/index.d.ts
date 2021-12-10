@@ -1,7 +1,7 @@
-interface Functor<A> {
+export interface Functor<A> {
     map<B>(transform: (a: A) => B): Functor<B>;
 }
-interface Applicative<A> extends Functor<A> {
+export interface Applicative<A> extends Functor<A> {
     pure(a: A): Applicative<A>;
     ap<B>(fab: Applicative<(a: A) => B>): Applicative<B>;
 }
@@ -16,4 +16,3 @@ export interface MonadOp<A> {
 export declare const isValid: (value: unknown) => boolean;
 export declare type Type = 'undefined' | 'boolean' | 'number' | 'string' | 'symbol' | 'bigint' | 'function' | 'null' | 'array' | 'object';
 export declare const typeOf: (a: unknown) => Type;
-export {};

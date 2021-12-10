@@ -247,8 +247,8 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
     transform10: (j: J) => Option<K>
   ): Option<K>;
 
-  combine(sg: (a1: A, a2: A) => A, ...others: Array<Option<A>>): Option<A>;
-  combine2(sg: (a1: A, a2: A) => A): (...others: Array<Option<A>>) => Option<A>;
+  combine(sg: (a1: A) =>(a2: A) => A, ...others: Array<Option<A>>): Option<A>;
+  combine2(sg: (a1: A) =>(a2: A) => A): (...others: Array<Option<A>>) => Option<A>;
 
   getOrElse(supplier: () => A): A;
 
@@ -297,10 +297,10 @@ abstract class AbstractOption<A> implements Option<A> {
     );
   }
 
-  combine(sg: (a1: A, a2: A) => A, ...options: Array<Option<A>>): Option<A> {
+  combine(sg: (a1: A) => (a2: A) => A, ...options: Array<Option<A>>): Option<A> {
     const [first, ...others] = options;
     const f = (o1: Option<A>, o2: Option<A>) =>
-      o1.ap(o2.map((f: A) => (t: A) => sg(t, f)));
+      o1.ap(o2.map((f: A) => (t: A) => sg(t)(f)));
     return others.reduce(
       (option, nextOption) => f(option, nextOption),
       f(this, first)
@@ -308,10 +308,10 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   combine2(
-    sg: (a1: A, a2: A) => A
+    sg: (a1: A) => (a2: A) => A
   ): (...options: Array<Option<A>>) => Option<A> {
     const f = (o1: Option<A>, o2: Option<A>) =>
-      o1.ap(o2.map((f: A) => (t: A) => sg(t, f)));
+      o1.ap(o2.map((f: A) => (t: A) => sg(t)(f)));
     return (...options: Array<Option<A>>) => {
       const [first, ...others] = options;
       return others.reduce(
@@ -376,7 +376,7 @@ class None<A> extends AbstractOption<A> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  combine(sg: (a1: A, a2: A) => A, other: Option<A>): Option<A> {
+  combine(sg: (a1: A) => (a2: A) => A, other: Option<A>): Option<A> {
     return this;
   }
 }
