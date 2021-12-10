@@ -58,6 +58,11 @@ export const Semigroups = {
    * 문자열 배열의 값을 결합한다.
    */
   arrayString: arrayValueSemigroup<string>(stringSemigroup),
+
+  arrayBoolean: {
+    and: arrayValueSemigroup<boolean>(booleanAndSemigroup),
+    or: arrayValueSemigroup<boolean>(booleanOrSemigroup),
+  },
   /**
    * 두 불변 리스트를 결합한다.
    */
@@ -67,6 +72,10 @@ export const Semigroups = {
 export const Zero = {
   string: "",
   number: 0,
+  boolean: {
+    and: true,
+    or: false
+  },
   array: []
 }
 
@@ -108,6 +117,16 @@ export const Monoids = {
     zero: Zero.string,
     op: monoidCombine<string>(stringSemigroup)(Zero.string)
   } as Monoid<string>,
+  boolean: {
+    and: {
+      zero: Zero.boolean.and,
+      op: monoidCombine<boolean>(booleanAndSemigroup)(Zero.boolean.and)
+    } as Monoid<boolean>,
+    or: {
+      zero: Zero.boolean.or,
+      op: monoidCombine<boolean>(booleanOrSemigroup)(Zero.boolean.or)
+    } as Monoid<boolean>
+  },
   arrayOf: arrayMonoid,
   arrayValueOf: arrayValueMonoid,
   arrayNumber: {
@@ -118,6 +137,16 @@ export const Monoids = {
     zero: Zero.string,
     op: arrayValueMonoidCombine<string>(stringSemigroup)(Zero.string)
   } as ArrayValueMonoid<string>,
+  arrayBoolean: {
+    and: {
+      zero: Zero.boolean.and,
+      op: arrayValueMonoidCombine<boolean>(booleanAndSemigroup)(Zero.boolean.and)
+    } as ArrayValueMonoid<boolean>,
+    or: {
+      zero: Zero.boolean.or,
+      op: arrayValueMonoidCombine<boolean>(booleanOrSemigroup)(Zero.boolean.or)
+    } as ArrayValueMonoid<boolean>
+  },
   immutableListOf: immutableListValueMonoid,
   immutableListNumber: immutableListValueMonoid<number>(numberSemigroup)(Zero.number),
   immutableListString: immutableListValueMonoid<string>(stringSemigroup)(Zero.string),
