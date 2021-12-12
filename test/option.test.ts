@@ -1,5 +1,5 @@
 import {Option} from '../src/option';
-import {Semigroups} from '../src/combine';
+import {Combine, Semigroup} from '../src';
 
 describe('Option Test', () => {
   test('map x getOrElse - success', () => {
@@ -80,48 +80,48 @@ describe('Option Test', () => {
   test('combine test', () => {
     expect(
       Option.pure(3)
-        .combine(Semigroups.number, Option.pure(6))
+        .combine(Semigroup.number, Option.pure(6))
         .getOrElse(() => 0)
     ).toBe(9);
     expect(
       Option.pure(3)
-        .combine2(Semigroups.number)(Option.pure(6))
+        .combine2(Semigroup.number)(Option.pure(6))
         .getOrElse(() => 0)
     ).toBe(9);
     expect(
       Option.pure([1])
-        .combine(Semigroups.array, Option.pure([2]), Option.pure([3]))
-        .map(Semigroups.arrayNumber)
+        .combine(Semigroup.arrayNumber, Option.pure([2]), Option.pure([3]))
+        .map(Combine.arrayNumber)
         .getOrElse(() => 0)
     ).toBe(6);
     expect(
       Option.pure([1])
-        .combine2(Semigroups.array)(Option.pure([2]), Option.pure([3]))
-        .map(Semigroups.arrayNumber)
+        .combine2(Semigroup.arrayNumber)(Option.pure([2]), Option.pure([3]))
+        .map(Combine.arrayNumber)
         .getOrElse(() => 0)
     ).toBe(6);
     expect(
       Option.pure(['a'])
-        .combine(Semigroups.array, Option.pure(['b']), Option.pure(['c']))
-        .map(Semigroups.arrayString)
+        .combine(Semigroup.arrayString, Option.pure(['b']), Option.pure(['c']))
+        .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('abc');
     expect(
       Option.pure(['a'])
-        .combine2(Semigroups.array)(Option.pure(['b']), Option.pure(['c']))
-        .map(Semigroups.arrayString)
+        .combine2(Semigroup.arrayString)(Option.pure(['b']), Option.pure(['c']))
+        .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('abc');
     expect(
       Option.pure(['a'])
-        .combine(Semigroups.array, Option.pure(['b']), Option.None())
-        .map(Semigroups.arrayString)
+        .combine(Semigroup.arrayString, Option.pure(['b']), Option.None())
+        .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('');
     expect(
       Option.pure(['a'])
-        .combine2(Semigroups.array)(Option.pure(['b']), Option.None())
-        .map(Semigroups.arrayString)
+        .combine2(Semigroup.arrayString)(Option.pure(['b']), Option.None())
+        .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('');
   });

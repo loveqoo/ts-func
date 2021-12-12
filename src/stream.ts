@@ -1,7 +1,7 @@
 import {Result} from './result';
 import {Lazy} from './lazy';
-import {ImmutableList, immutableListOf} from "./list";
-import {done, suspend, trampoline, Trampoline} from "./trampoline";
+import {ImmutableList, immutableListOf} from './list';
+import {done, suspend, trampoline, Trampoline} from './trampoline';
 
 export interface Stream<A> {
   isEmpty(): boolean;
@@ -58,21 +58,22 @@ class Empty<A> implements Stream<A> {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emptyOf = <A>() => new Empty<A>();
 
 const applyToStream = <A, T>(
-    stream: Stream<A>,
-    consCallback: (cons: Cons<A>) => T,
-    emptyCallback: (empty: Empty<A>) => T
-    ): T => {
+  stream: Stream<A>,
+  consCallback: (cons: Cons<A>) => T,
+  emptyCallback: (empty: Empty<A>) => T
+): T => {
   if (stream instanceof Cons) {
-    return consCallback(stream)
+    return consCallback(stream);
   } else if (stream instanceof Empty) {
-    return emptyCallback(stream)
+    return emptyCallback(stream);
   } else {
     throw new Error('Stream 타입의 인스턴스가 아님');
   }
-}
+};
 
 const operations = {
   cons: <A>(head: Lazy<A>, tail: Lazy<Stream<A>>): Stream<A> => {
@@ -87,22 +88,40 @@ const operations = {
   },
   dropAndMost: <A>(stream: Stream<A>, n: number): Stream<A> => {
     if (n > 0) {
-      return applyToStream(stream,
-          (cons) => operations.dropAndMost(cons.lazyTail.getValue(), n - 1),
-          () => stream)
+      return applyToStream(
+        stream,
+        cons => operations.dropAndMost(cons.lazyTail.getValue(), n - 1),
+        () => stream
+      );
     } else {
-      return stream
+      return stream;
     }
   },
   toList: <A>(stream: Stream<A>): ImmutableList<A> => {
-    const inner = (list: ImmutableList<A>, stream: Stream<A>): Trampoline<ImmutableList<A>> =>
-        applyToStream(stream, (cons) =>
-            suspend(() => inner(list.cons(cons.lazyHead.getValue()), cons.lazyTail.getValue())),
-        () => done(list))
-    return trampoline(inner)(immutableListOf<A>(), stream).reverse()
+    const inner = (
+      list: ImmutableList<A>,
+      stream: Stream<A>
+    ): Trampoline<ImmutableList<A>> =>
+      applyToStream(
+        stream,
+        cons =>
+          suspend(() =>
+            inner(list.cons(cons.lazyHead.getValue()), cons.lazyTail.getValue())
+          ),
+        () => done(list)
+      );
+    return trampoline(inner)(immutableListOf<A>(), stream).reverse();
   },
-  iterate: <A>(seed: A, f: (a: A) => A): Stream<A> => operations.cons<A>(Lazy.pure(() => seed), Lazy.pure(() => operations.iterate(f(seed), f))),
-  iterate2: <A>(seed: Lazy<A>, f: (a: A) => A): Stream<A> => operations.cons<A>(seed, Lazy.pure(() => operations.iterate(f(seed.getValue()), f))),
+  iterate: <A>(seed: A, f: (a: A) => A): Stream<A> =>
+    operations.cons<A>(
+      Lazy.pure(() => seed),
+      Lazy.pure(() => operations.iterate(f(seed), f))
+    ),
+  iterate2: <A>(seed: Lazy<A>, f: (a: A) => A): Stream<A> =>
+    operations.cons<A>(
+      seed,
+      Lazy.pure(() => operations.iterate(f(seed.getValue()), f))
+    ),
   // TODO: takeWhile, dropWhile, exists, foldRight, takeWhileViaFoldRight, headSafe, map, filter, append, flatMap, find, unfold, filter2
 };
 
@@ -112,4 +131,4 @@ const operations = {
 export const Stream = {
   repeat: operations.repeat,
   toList: operations.toList,
-}
+};
