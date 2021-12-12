@@ -1,6 +1,5 @@
 {
   "entryPoints": [
-    "src/combine.ts",
     "src/decorators.ts",
     "src/free.ts",
     "src/holder.ts",
