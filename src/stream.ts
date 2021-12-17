@@ -28,13 +28,10 @@ class Cons<A> implements Stream<A> {
     return Result.pure(this.lazyTail.getValue());
   }
   takeAtMost(n: number): Stream<A> {
-    return operations.cons(
-      Lazy.pure(() => this.lazyHead.getValue()),
-      Lazy.pure(() => this.lazyTail.getValue().takeAtMost(n - 1))
-    );
+    return operations.takeAtMost(this, n);
   }
   dropAtMost(n: number): Stream<A> {
-    return operations.dropAndMost(this, n);
+    return operations.dropAtMost(this, n);
   }
 }
 
@@ -48,13 +45,11 @@ class Empty<A> implements Stream<A> {
   tail(): Result<Stream<A>> {
     return Result.Empty();
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   takeAtMost(n: number): Stream<A> {
-    return this;
+    return operations.takeAtMost(this, n);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   dropAtMost(n: number): Stream<A> {
-    return this;
+    return operations.dropAtMost(this, n);
   }
 }
 
@@ -86,11 +81,11 @@ const operations = {
       Lazy.pure(() => operations.repeat(f))
     );
   },
-  dropAndMost: <A>(stream: Stream<A>, n: number): Stream<A> => {
+  dropAtMost: <A>(stream: Stream<A>, n: number): Stream<A> => {
     if (n > 0) {
       return applyToStream(
         stream,
-        cons => operations.dropAndMost(cons.lazyTail.getValue(), n - 1),
+        cons => operations.dropAtMost(cons.lazyTail.getValue(), n - 1),
         () => stream
       );
     } else {
@@ -117,11 +112,22 @@ const operations = {
       Lazy.pure(() => seed),
       Lazy.pure(() => operations.iterate(f(seed), f))
     ),
-  iterate2: <A>(seed: Lazy<A>, f: (a: A) => A): Stream<A> =>
+  flatIterate: <A>(seed: Lazy<A>, f: (a: A) => A): Stream<A> =>
     operations.cons<A>(
       seed,
       Lazy.pure(() => operations.iterate(f(seed.getValue()), f))
     ),
+  takeAtMost: <A>(stream: Stream<A>, n: number): Stream<A> => {
+    return applyToStream(stream,
+        (cons) => operations.cons(Lazy.pure(
+                () => cons.lazyHead.getValue()),
+            Lazy.pure(() => cons.lazyTail.getValue().takeAtMost(n - 1))
+        ),
+        (empty) => empty)
+  },
+  // takeWhile: <A>(stream: Stream<A>, p: (a: A) => boolean): Stream<A> => {
+  //
+  // }
   // TODO: takeWhile, dropWhile, exists, foldRight, takeWhileViaFoldRight, headSafe, map, filter, append, flatMap, find, unfold, filter2
 };
 

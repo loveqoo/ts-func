@@ -1,5 +1,5 @@
 import {frozen, sealed} from './decorators';
-import {isValid, Monad, MonadOp} from './index';
+import {isValid, Monad, MonadOp, SemigroupOperation} from './index';
 
 export interface Option<A> extends Monad<A>, MonadOp<A> {
   pure(a: A): Option<A>;
@@ -248,7 +248,7 @@ export interface Option<A> extends Monad<A>, MonadOp<A> {
   ): Option<K>;
 
   combine(sg: (a1: A) => (a2: A) => A, ...others: Array<Option<A>>): Option<A>;
-  combine2(
+  combineCurry(
     sg: (a1: A) => (a2: A) => A
   ): (...others: Array<Option<A>>) => Option<A>;
 
@@ -300,7 +300,7 @@ abstract class AbstractOption<A> implements Option<A> {
   }
 
   combine(
-    sg: (a1: A) => (a2: A) => A,
+    sg: SemigroupOperation<A>,
     ...options: Array<Option<A>>
   ): Option<A> {
     const [first, ...others] = options;
@@ -312,8 +312,8 @@ abstract class AbstractOption<A> implements Option<A> {
     );
   }
 
-  combine2(
-    sg: (a1: A) => (a2: A) => A
+  combineCurry(
+    sg: SemigroupOperation<A>
   ): (...options: Array<Option<A>>) => Option<A> {
     const f = (o1: Option<A>, o2: Option<A>) =>
       o1.ap(o2.map((f: A) => (t: A) => sg(t)(f)));

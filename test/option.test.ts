@@ -85,7 +85,7 @@ describe('Option Test', () => {
     ).toBe(9);
     expect(
       Option.pure(3)
-        .combine2(Semigroup.number)(Option.pure(6))
+        .combineCurry(Semigroup.number)(Option.pure(6))
         .getOrElse(() => 0)
     ).toBe(9);
     expect(
@@ -96,7 +96,7 @@ describe('Option Test', () => {
     ).toBe(6);
     expect(
       Option.pure([1])
-        .combine2(Semigroup.arrayNumber)(Option.pure([2]), Option.pure([3]))
+        .combineCurry(Semigroup.arrayNumber)(Option.pure([2]), Option.pure([3]))
         .map(Combine.arrayNumber)
         .getOrElse(() => 0)
     ).toBe(6);
@@ -108,7 +108,7 @@ describe('Option Test', () => {
     ).toBe('abc');
     expect(
       Option.pure(['a'])
-        .combine2(Semigroup.arrayString)(Option.pure(['b']), Option.pure(['c']))
+        .combineCurry(Semigroup.arrayString)(Option.pure(['b']), Option.pure(['c']))
         .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('abc');
@@ -120,7 +120,7 @@ describe('Option Test', () => {
     ).toBe('');
     expect(
       Option.pure(['a'])
-        .combine2(Semigroup.arrayString)(Option.pure(['b']), Option.None())
+        .combineCurry(Semigroup.arrayString)(Option.pure(['b']), Option.None())
         .map(Combine.arrayString)
         .getOrElse(() => '')
     ).toBe('');
